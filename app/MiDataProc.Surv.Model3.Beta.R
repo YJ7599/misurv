@@ -145,7 +145,6 @@ Ds.Ks.func <- function(rare.biom, biom.after.qc) {
 ### MiRKAT
 
 mirkatS.bin <- function(beta.bin.out) {
-  set.seed(487)
   out <- MiRKATS(obstime = as.numeric(beta.bin.out$con.var)-1,#beta.bin.out$con.var,
                  delta   = as.numeric(beta.bin.out$bin.var)-1,#beta.bin.out$bin.var,
                  X = NULL, 
@@ -247,7 +246,6 @@ mirkatS.bin.plot3d <- function(out, beta.bin.out, mod, sub.tit) {
 }
 
 mirkatS.bin.cov <- function(beta.bin.cov.out) {
-  set.seed(487)
   #if ( is.numeric( beta.bin.cov.out$  )  )
   
   cov.ls <- names(beta.bin.cov.out$cov.var)
