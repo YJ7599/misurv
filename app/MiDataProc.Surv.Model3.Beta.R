@@ -25,7 +25,7 @@ library(MiRKAT)
 #library(GLMMMiRKAT)
 library(proxy)
 library(vegan3d)
-library(pca3d)
+#library(pca3d)
 #####################
 # Data manipulation #
 #####################
