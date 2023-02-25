@@ -62,7 +62,7 @@ COPY app/MiDataProc.Surv.Model3.Alpha.R /root/app
 COPY app/MiDataProc.Surv.Model3.Beta.R /root/app
 COPY app/MiDataProc.Surv.Model3.Taxa.R /root/app
 COPY app/MiDataProc.Surv.Model4.R /root/app
-COPY app/www/MiCloud-S_workflow.png /root/app
+COPY app/www/MiSurv_workflow.png /root/app
 
 EXPOSE 3838
 
