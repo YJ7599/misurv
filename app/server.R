@@ -2926,8 +2926,8 @@ server = function(input, output, session) {
         
         incProgress(3/10, message = "Calculating Distance")
         
+        #ds.Ks$res = Ds.Ks.func(infile$rare_biom, infile$qc_biom)
         ds.Ks$res = Ds.Ks.func(infile$rare_biom, infile$qc_biom)
-        
         incProgress(1/10, message = "Transforming Data")
         
         rare.otu.tab <- otu_table(infile$rare_biom)
