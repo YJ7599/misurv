@@ -74,6 +74,8 @@ betaS.bin.cat.ref.func <- function(sel.bin.var, sel.con.var, sel.ref, sel.com, s
   return(list(bin.var = bin.var, con.var = con.var, Ds = Ds, Ks = Ks))
 }
 
+
+
 betaS.bin.cov.cat.ref.func <- function(sel.bin.var, sel.con.var, sel.ref, sel.com, sel.cov.var, sam.dat, Ds.Ks) {  
   bin.var <- unlist(sam.dat[,sel.bin.var])
   ind.ref <- which(bin.var[1:nrow(Ds.Ks$Ds[[1]])] == sel.ref)
@@ -145,6 +147,7 @@ Ds.Ks.func <- function(rare.biom, biom.after.qc) {
 ### MiRKAT
 
 mirkatS.bin <- function(beta.bin.out) {
+  set.seed(487)
   out <- MiRKATS(obstime = as.numeric(beta.bin.out$con.var)-1,#beta.bin.out$con.var,
                  delta   = as.numeric(beta.bin.out$bin.var)-1,#beta.bin.out$bin.var,
                  X = NULL, 
@@ -246,6 +249,7 @@ mirkatS.bin.plot3d <- function(out, beta.bin.out, mod, sub.tit) {
 }
 
 mirkatS.bin.cov <- function(beta.bin.cov.out) {
+  set.seed(487)
   #if ( is.numeric( beta.bin.cov.out$  )  )
   
   cov.ls <- names(beta.bin.cov.out$cov.var)
@@ -309,4 +313,3 @@ p.value.0.1 <- function(x, round.x = 3) {
   
   return(x)
 }
-
