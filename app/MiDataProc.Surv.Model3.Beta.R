@@ -250,14 +250,19 @@ mirkatS.bin.plot3d <- function(out, beta.bin.out, mod, sub.tit) {
 
 mirkatS.bin.cov <- function(beta.bin.cov.out) {
   set.seed(487)
-  #if ( is.numeric( beta.bin.cov.out$  )  )
   
   cov.ls <- names(beta.bin.cov.out$cov.var)
+  print(cov.ls) 
   
   library(dplyr)
   
   for ( i in 1:length(cov.ls)){
+    print(i) 
+    print(cov.ls[i]) 
+    print(beta.bin.cov.out$cov.var[[cov.ls[i]]]) 
+    
     if ( !is.numeric(beta.bin.cov.out$cov.var[[cov.ls[i]]] ) ){
+      print(inside) 
       beta.bin.cov.out$cov.var[[cov.ls[i]]] <- ifelse(beta.bin.cov.out$cov.var[[cov.ls[i]]] == unique(beta.bin.cov.out$cov.var[[cov.ls[i]]])[1], 0, 1)
     }
   }
