@@ -2076,9 +2076,6 @@ server = function(input, output, session) {
   ## Beta Cox Proportion Hazard Analysis ##
   ##########################################
   observeEvent(input$runbtn_CoxB, {
-    print("it works") 
-    print(input$covariatesOptionsCoxB) 
-    print(input$covariatesCoxB) 
     
     validate(
       if (input$covariatesCoxB == "Covariate(s)" & is.null(input$covariatesOptionsCoxB)) {
@@ -2098,19 +2095,34 @@ server = function(input, output, session) {
         
         ##############################################
         
+        print("of course") 
         incProgress(1/10, message = "Calculating")
+        
+        print('come in') 
         
         betaS.primvar_time = chooseData$surv.Time.select
         betaS.primvar_cross  = chooseData$censor.select
         
+        print(betaS.primvar_time) 
+        print(betaS.primvar_cross) 
+        
+        
         beta.bin.cat.ref.ori.out <- beta.bin.cat.ref.ori.func(chooseData$sam.dat, betaS.primvar_cross)
+        print("next step") 
+        print(beta.bin.cat.ref.ori.out) 
         
         rename.catsbin_ref = beta.bin.cat.ref.ori.out[1]
         rename.catsbin_com = beta.bin.cat.ref.ori.out[2]
         
+        print(rename.catsbin_ref) 
+        print(rename.catsbin_com) 
+        
         beta.sam_dat.bin <- beta.bin.cat.recode.func(chooseData$sam.dat, betaS.primvar_cross,
                                                      beta.bin.cat.ref.ori.out,
                                                      rename.catsbin_ref, rename.catsbin_com)
+        
+        print(beta.sam_dat.bin) 
+        print("How about?") 
         
         beta.sam_dat.bin <- sam_no_miss_cov(beta.sam_dat.bin, input$covariatesOptionsCoxB)
         
