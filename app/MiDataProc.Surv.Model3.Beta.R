@@ -252,23 +252,23 @@ mirkatS.bin.cov <- function(beta.bin.cov.out) {
   set.seed(487)
   
   cov.ls <- names(beta.bin.cov.out$cov.var)
-  print(cov.ls) 
   
   library(dplyr)
   
   for ( i in 1:length(cov.ls)){
-    print(i) 
-    print(cov.ls[i]) 
-    print(beta.bin.cov.out$cov.var[[cov.ls[i]]]) 
-    
+
     if ( !is.numeric(beta.bin.cov.out$cov.var[[cov.ls[i]]] ) ){
-      print("inside") 
       beta.bin.cov.out$cov.var[[cov.ls[i]]] <- ifelse(beta.bin.cov.out$cov.var[[cov.ls[i]]] == unique(beta.bin.cov.out$cov.var[[cov.ls[i]]])[1], 0, 1)
-      print("outside") 
     }
   }
   
+  print(as.numeric(beta.bin.cov.out$con.var)-1) 
+  print("1") 
+  print(as.numeric(beta.bin.cov.out$bin.var)-1) 
+  print("2") 
   print(as.vector(beta.bin.cov.out$cov.var)) 
+  
+  
   
   out <- MiRKATS(#y = as.numeric(beta.bin.cov.out$bin.var)-1, 
                  obstime = as.numeric(beta.bin.cov.out$con.var)-1,#beta.bin.out$con.var,
