@@ -273,7 +273,7 @@ mirkatS.bin.cov <- function(beta.bin.cov.out) {
   print(as.numeric(beta.bin.cov.out$bin.var)-1) 
   print( as.vector(beta.bin.cov.out$cov.var)) 
   print("hmm please")
-  print(beta.bin.cov.out$Ks) 
+  #print(beta.bin.cov.out$Ks) 
   print("finalfinal") 
   out <- MiRKATS(#y = as.numeric(beta.bin.cov.out$bin.var)-1, 
                  obstime = as.numeric(beta.bin.cov.out$con.var)-1,#beta.bin.out$con.var,
