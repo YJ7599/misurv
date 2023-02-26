@@ -2126,14 +2126,21 @@ server = function(input, output, session) {
         
         beta.sam_dat.bin <- sam_no_miss_cov(beta.sam_dat.bin, input$covariatesOptionsCoxB)
         
+        print(beta.sam_dat.bin) 
+        
+        
         ds.Ks.res <- ds.Ks$res
         ds.Ks.res <- beta_no_miss_cov(beta.sam_dat.bin, ds.Ks.res, input$covariatesOptionsCoxB)
+        
+        print(ds.Ks.res) 
+        print("fin") 
         
         if (input$subgroup.b== "Yes"){
           ind.sub <- beta.sam_dat.bin [[input$subgroup.sel.b]] == input$pick_subgroup.b
           beta.sam_dat.bin  <- beta.sam_dat.bin [ind.sub, ]
         }
         
+        print("maybe here") 
         
         for(i in 1:2){
           for(j in 1:length(ds.Ks$res[[i]])) {
@@ -2141,6 +2148,9 @@ server = function(input, output, session) {
             ds.Ks.res[[i]][[j]] <- ds.Ks$res[[i]][[j]][ind,ind]
           }
         }
+        
+        print(i) 
+        print(j) 
         
         if (input$covariatesCoxB == "None") {
           betaS.bin.out <- betaS.bin.cat.ref.func(betaS.primvar_cross, betaS.primvar_time,
@@ -2157,6 +2167,7 @@ server = function(input, output, session) {
             betaS.data.results$data.q.out <- betaS.bin.out
           } 
           else {
+            print("maybe it does not works") 
             betaS.bin.cov.out <- betaS.bin.cov.cat.ref.func(betaS.primvar_cross, betaS.primvar_time,
                                                             rename.catsbin_ref, rename.catsbin_com,
                                                             input$covariatesOptionsCoxB, beta.sam_dat.bin,
