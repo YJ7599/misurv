@@ -2172,12 +2172,14 @@ server = function(input, output, session) {
                                                             rename.catsbin_ref, rename.catsbin_com,
                                                             input$covariatesOptionsCoxB, beta.sam_dat.bin,
                                                             Ds.Ks = ds.Ks.res)
+            print(betaS.bin.cov.out) 
+            print("what?") 
             betaS.data.results$data.q.out <- betaS.bin.cov.out
           }
         }
         
         if (isolate(input$covariatesCoxB) == "None") {
-          
+          print("no here") 
           betaS.down.results$CS = mirkatS.bin(betaS.data.results$data.q.out)
           betaS.plot.info <- mirkatS.bin.plot1(betaS.down.results$CS, betaS.data.results$data.q.out)
           
@@ -2189,14 +2191,20 @@ server = function(input, output, session) {
         else if (isolate(input$covariatesCoxB) == "Covariate(s)") {
           
           betaS.down.results$CS = mirkatS.bin.cov(betaS.data.results$data.q.out)
+          print('betas') 
+          print(betaS.down.results$CS) 
           
           betaS.plot.info <- mirkatS.bin.plot1(betaS.down.results$CS, betaS.data.results$data.q.out)
+          print(betaS.plot.info) 
+
+          print("8:01") 
           
           output$m3_beta_2d = renderPlot({
             isolate(try( mirkatS.bin.plot2(betaS.down.results$CS, betaS.data.results$data.q.out, betaS.plot.info$mod, betaS.plot.info$sub.tit), silent = TRUE))
           })
         }
         
+        print("maybe real fin" ) 
         betaS.data.results$betaS.plot.info <- isolate(betaS.plot.info)
         
         # output$betaS_display_results_cross = renderUI({
@@ -2209,6 +2217,7 @@ server = function(input, output, session) {
         #   )
         # })
         
+        
         output$betaS_display_results_cross = renderUI({
           tagList(
             box(title = strong("Graphs for Beta Diversity"), 
@@ -2219,6 +2228,8 @@ server = function(input, output, session) {
         })
         
         beta_ind <- c("Jaccard", "Bray-Curtis", "U.UniFrac", "G.UniFrac", "W.UniFrac")
+        
+        print(beta_ind) 
         
         output$beta_surv_downloadTable = renderUI({
           tagList(
@@ -2233,6 +2244,8 @@ server = function(input, output, session) {
             )
           )
         })
+        
+        print("-1") 
         
         output$downloadTabl_bS1 <- downloadHandler(
           filename = function() {
