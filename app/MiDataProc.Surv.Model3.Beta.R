@@ -264,6 +264,7 @@ mirkatS.bin.cov <- function(beta.bin.cov.out) {
     if ( !is.numeric(beta.bin.cov.out$cov.var[[cov.ls[i]]] ) ){
       print("inside") 
       beta.bin.cov.out$cov.var[[cov.ls[i]]] <- ifelse(beta.bin.cov.out$cov.var[[cov.ls[i]]] == unique(beta.bin.cov.out$cov.var[[cov.ls[i]]])[1], 0, 1)
+      print("outside") 
     }
   }
   
