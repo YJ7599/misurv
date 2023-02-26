@@ -262,7 +262,7 @@ mirkatS.bin.cov <- function(beta.bin.cov.out) {
     print(beta.bin.cov.out$cov.var[[cov.ls[i]]]) 
     
     if ( !is.numeric(beta.bin.cov.out$cov.var[[cov.ls[i]]] ) ){
-      print(inside) 
+      print("inside") 
       beta.bin.cov.out$cov.var[[cov.ls[i]]] <- ifelse(beta.bin.cov.out$cov.var[[cov.ls[i]]] == unique(beta.bin.cov.out$cov.var[[cov.ls[i]]])[1], 0, 1)
     }
   }
@@ -274,6 +274,7 @@ mirkatS.bin.cov <- function(beta.bin.cov.out) {
                  beta = NULL,
                  Ks = beta.bin.cov.out$Ks,
                  nperm = 3000)
+  print("815") 
   
   return(out)
 }
