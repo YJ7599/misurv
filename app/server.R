@@ -2076,6 +2076,8 @@ server = function(input, output, session) {
   ## Beta Cox Proportion Hazard Analysis ##
   ##########################################
   observeEvent(input$runbtn_CoxB, {
+    print("123") 
+    print("it works") 
     validate(
       if (input$covariatesCoxB == "Covariate(s)" & is.null(input$covariatesOptionsCoxB)) {
         showNotification("Error: Please select covariate(s) before you click 'Run!' button.",
