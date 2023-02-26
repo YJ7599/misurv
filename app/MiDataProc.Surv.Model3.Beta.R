@@ -262,15 +262,7 @@ mirkatS.bin.cov <- function(beta.bin.cov.out) {
     }
   }
   
-  print(as.numeric(beta.bin.cov.out$con.var)-1) 
-  print("1") 
-  print(as.numeric(beta.bin.cov.out$bin.var)-1) 
-  print("2") 
-  print(as.vector(beta.bin.cov.out$cov.var))   #이거로 다시 
-  print(data.frame(beta.bin.cov.out$cov.var)) 
-  
-  
-  
+ 
   out <- MiRKATS(#y = as.numeric(beta.bin.cov.out$bin.var)-1, 
                  obstime = as.numeric(beta.bin.cov.out$con.var)-1,#beta.bin.out$con.var,
                  delta   = as.numeric(beta.bin.cov.out$bin.var)-1,#beta.bin.out$bin.var,
@@ -278,7 +270,6 @@ mirkatS.bin.cov <- function(beta.bin.cov.out) {
                  beta = NULL,
                  Ks = beta.bin.cov.out$Ks,
                  nperm = 3000)
-  print("815") 
   
   return(out)
 }
