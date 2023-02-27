@@ -316,7 +316,8 @@ server = function(input, output, session) {
         output$ref_micloud <- renderUI({
           tagList(
             box(title = strong("Reference"), width = NULL, status = "primary", solidHeader = TRUE, 
-                p("Gu W, Moon J, Chisina C, Kang B, Park T, Koh H. MiCloud: A unified web platform for comprehensive microbiome data analysis. PLoS One 2022:17(8): e0272354.")
+                p("Zhang XS, Li J, Krautkramer KA, Badri M, Battaglia T, Borbet TC et al. Antibiotic-induced acceleration of type 1 diabetes alters maturation of innate intestinal immunity. eLife 2018:7:e37816."), 
+                p("Gu W, Koh H, Jang HJ, Lee B, Kang B. MiSurv: An integrative web cloud platform for user-friendly microbiome data analysis with survival responses. (in review)")
             )
           )
         })
