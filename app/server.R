@@ -48,7 +48,9 @@
                                     The subjects should be matched and identical between feature table and metadata/sample information. 
                                     MiSurv will analyze only the matched features and subjects.", style = "font-size:11pt")
   INPUT_INDIVIDUAL_DATA_COMMENT2 = p("You can download example microbiome data 'biom.zip'. This zip file contains four necessary data, feature table (otu.tab.txt), 
-                                     taxonomic table (tax.tab.txt), metadata/sample information (sam.dat.txt), and phylogenetic tree (tree.tre).", br(), br(),
+                                     taxonomic table (tax.tab.txt), metadata/sample information (sam.dat.txt), and phylogenetic tree (tree.tre).", br(), 
+                                     p(strong("Data description:"), "This example data are the public gut microbiome data (Zhang et al. 2018) we used in our real data applications (Gu et al., in review). The raw sequence data are deposited in QIITA (", tags$a(href = "https://qiita.ucsd.edu", "https://qiita.ucsd.edu"), ") with the ID number 10508 (", tags$a(href = "https://qiita.ucsd.edu/study/description/10508", "https://qiita.ucsd.edu/study/description/10508"), "). More detailed sample extraction and raw sequence data processing procedures are described in (Zhang et al. 2018; Gu et al., in review). "), 
+                               
                                      "> setwd('/yourdatadirectory/')", br(), br(), 
                                      "> otu.tab <- read.table(file = 'otu.tab.txt', check.names = FALSE) ", br(), 
                                      "> tax.tab <- read.table(file = 'tax.tab.txt', check.names = FALSE)", br(), 
