@@ -285,7 +285,12 @@ server = function(input, output, session) {
                       accept = c(".txt", ".csv"), width = '80%'), div(style = "margin-top: -15px"),
             fileInput("tree", strong("Please upload your phylogenetic tree (.tre, .nwk)", style = "color:black"), 
                       accept = c(".tre", ".nwk"), width = '80%'), div(style = "margin-top: -15px"),
-            actionButton('Load_Individual_Data', 'Upload', class = "btn-info"), br(),br(),
+            actionButton('Load_Individual_Data', 'Upload', class = "btn-info"),
+            br(),
+            p(" ", style = "margin-top: 5px;"),
+            p(strong("Attention: ", style = "color:black"), "You have to click this Upload button to perform following data processing and downstream data analyses."), 
+            
+            br(), 
             shinyjs::hidden(
               shiny::div(id = "textfilesUpload_error",
                          shiny::tags$p("Please upload txt and tre files!!",
