@@ -98,19 +98,8 @@
 server = function(input, output, session) {
   options(shiny.maxRequestSize=30*1024^2)
   ## load example data ####
-  source("MiDataProc.Data.Upload.R")
-  source("MiDataProc.Alpha.Cross.Sectional.R")
-  source("MiDataProc.Beta.Cross.Sectional.R")
-  source("MiDataProc.Taxa.Cross.Sectional.R")
-  source("MiDataProc.Surv.Model1.R")
-  source("MiDataProc.Surv.Model3.Alpha.R")
-  source("MiDataProc.Surv.Model3.Beta.R")
-  source("MiDataProc.Surv.Model3.Taxa.R")
-  source("MiDataProc.Surv.Model4.R")
-  
   env <- new.env()
-  nm <- load(file = "Data/MiCloud_S_Ex.Rdata", env)[1]
-  
+  nm <- load(file = "Data/biom.Rdata", env)[1]
   biom <- env[[nm]]
   
   ori.biom <- biom
@@ -152,7 +141,7 @@ server = function(input, output, session) {
                               nt.selected.bin = NULL, nt.selected.con = NULL, #nt.selected.prim = NULL, trigger = NULL, 
                               sam_dat = NULL, surv.Time.select = NULL, censor.select = NULL, follow.time = NULL,
                               subgroup = NULL, subgroup.sel = NULL, pick_subgroup = NULL, NAadded = NULL)
-                              
+  
   is.results = reactiveValues(result = NULL)
   is.results.long = reactiveValues(result = NULL)
   multi.test = reactiveValues(boolval = FALSE)
@@ -234,7 +223,8 @@ server = function(input, output, session) {
                        }"
             ),
             fileInput("phyloseqData", strong("Please upload your 'phyloseq' data (.Rdata, .rds)", style = "color:black"), 
-                      accept = c(".Rdata", ".rds"), width = '80%'), div(style = "margin-top: -15px"),
+                      accept = c(".Rdata", ".rds"), width = '80%'), div(style = "margin-top: -18px"),
+            
             actionButton('Load_Phyloseq_Data', 'Upload', class = "btn-info"),
             br(),
             p(" ", style = "margin-top: 5px;"),
@@ -259,7 +249,7 @@ server = function(input, output, session) {
             )
           )
         })
-
+        
         output$ref_micloud <- renderUI({
           tagList(
             box(title = strong("Reference"), width = NULL, status = "primary", solidHeader = TRUE, 
@@ -287,7 +277,9 @@ server = function(input, output, session) {
                       accept = c(".txt", ".csv"), width = '80%'), div(style = "margin-top: -15px"),
             fileInput("tree", strong("Please upload your phylogenetic tree (.tre, .nwk)", style = "color:black"), 
                       accept = c(".tre", ".nwk"), width = '80%'), div(style = "margin-top: -15px"),
-            actionButton('Load_Individual_Data', 'Upload', class = "btn-info"),
+            
+            
+            actionButton('Load_Individual_Data', 'Upload', class = "btn-info"), 
             br(),
             p(" ", style = "margin-top: 5px;"),
             p(strong("Attention: ", style = "color:black"), "You have to click this Upload button to perform following data processing and downstream data analyses."), 
@@ -534,7 +526,6 @@ server = function(input, output, session) {
     shinyjs::enable("Load_Individual_Data")
   })
   
-  
   ######################################
   # Quality control and transformation #
   ######################################
@@ -656,11 +647,10 @@ server = function(input, output, session) {
     updateSliderInput(session, "slider1", min = 0, max = round(maxi.slider1,-3))
     updateSliderInput(session, "slider2", min = 0, max = maxi.slider2*100)
     
-    print("come here") 
     observeEvent(c(input$surv.Time.select, input$censor.select),{
-      if ((input$surv.Time.select == c("Choose one" = "", "") || input$censor.select == c("Choose one" = "", ""))){
+      if (input$surv.Time.select == c("Choose one" = "", "") || input$censor.select == c("Choose one" = "", "") ){
         disable("run")
-      }else if ((input$surv.Time.select != c("Choose one" = "", "") && input$censor.select != c("Choose one" = "", ""))){
+      } else if (input$surv.Time.select != c("Choose one" = "", "") && input$censor.select != c("Choose one" = "", "") ){
         enable("run")
       }
     })
@@ -676,23 +666,14 @@ server = function(input, output, session) {
     })
   })
   
-  shinyjs::hide("subgroup.sel")
-  shinyjs::hide("pick_subgroup")
-  
   observeEvent(infile$biom, {
     infile$is.mon <- is.mon.sin.rev.bin.con(sample_data(infile$biom))
     infile$ori.var <- surv.pri.func(sample_data(infile$biom), infile$is.mon)
-   
+    # if(is.null(input$surv.Time.select) || nchar(input$surv.Time.select) == 0) {
     updateSelectInput(session, "surv.Time.select", choices = c("Choose one" = "", sort(infile$ori.var[[2]])), selected = "")
     updateSelectInput(session, "censor.select", label = "", c("Choose one" = "", sort(infile$ori.var[[1]])), selected = "")
-
+    # }
   })
-  
-  ######################################
-  ######################################
-  #########  Data Analysis   ###########
-  ######################################
-  ######################################
   
   ######################################
   ######################################
@@ -1425,6 +1406,139 @@ server = function(input, output, session) {
       }
     })
     
+   
+    
+    ######################################
+    ######### Taxa Surv Analysis #########
+    ######################################
+    
+    output$censor.selectCoxT <- renderUI({
+      tagList(
+        prettyRadioButtons("surv.dataType_taxa", label = h4(strong("Data Format?", style = "color:black")), animation = "jelly",
+                           c("CLR (Default)", "Count (rarefied)", "Proportion", "Arcsine-root"), selected = "CLR (Default)",width = '70%'),
+        uiOutput("surv3T.subgroup")
+      )
+    })
+    
+    output$subgroupSurv.T <- renderUI({
+      tagList(
+        
+        h4(strong("Subgroup Analysis?", style = "color:black")), 
+        p("You can select a subgroup of interest using a category of a nominal variable (usually the treatment variable) to perform subgroup analysis. If you select a subgroup, only the subjects in that subgroup are retained in the following analysis. Otherwise, all the subjects given in the data are retained (optional).", style = "font-size:11pt"),
+        
+        prettyRadioButtons("subgroup.t", label = NULL, status = "primary", icon = icon("check"),
+                           animation = "jelly", choices = c("No", "Yes"), selected="No", width = '70%'),
+        p(" ", style = "margin-bottom: -25px;"),
+        shinyjs::hidden(
+          tagList(
+            shiny::div(id = "subgroup.sel.t", style = "margin-left: 5%",
+                       selectInput("subgroup.sel.t", label = "", 
+                                   c("Choose one" = "", "null"), selected = "null", width = '70%'))
+          )
+        ),
+        p(" ", style = "margin-bottom: -10px;"),
+        uiOutput("pick_subgroup.t"),
+        p(" ", style = "margin-bottom: +20px;"),
+      )
+    })
+    
+    observeEvent(input$subgroup.t,{
+      if (input$subgroup.t == "Yes"){
+        cat.for.subgroup = chooseData$prim_varsCox[[1]][ !chooseData$prim_varsCox[[1]]%in% input$censor.select ]
+        
+        if(!is.null(input$subgroup.sel.t)){
+          if(input$subgroup.sel.t %in% cat.for.subgroup) {
+            updateSelectInput(session, "subgroup.sel.t", label = "", c("Choose one" = "", sort(cat.for.subgroup)), 
+                              selected = input$subgroup.sel.t)
+          } else {
+            updateSelectInput(session, "subgroup.sel.t", label = "", c("Choose one" = "", sort(cat.for.subgroup)), 
+                              selected = sort(cat.for.subgroup)[1])
+          } 
+        } else {
+          updateSelectInput(session, "subgroup.sel.t", label = "", c("Choose one" = "", sort(cat.for.subgroup)), 
+                            selected = sort(cat.for.subgroup)[1])
+        }
+        shinyjs::show("subgroup.sel.t")
+        shinyjs::show("pick_subgroup.t")
+      }
+      else {
+        shinyjs::hide("subgroup.sel.t")
+        shinyjs::hide("pick_subgroup.t")
+      }
+    })
+    
+    observeEvent(input$subgroup.sel.t, {
+      if(input$subgroup.sel.t %in% infile$ori.var[[1]]){
+        
+        subgroup.val <- alpha.bin.cat.ref.ori.func(chooseData$sam.dat, input$subgroup.sel.t)
+        
+        output$pick_subgroup.t <- renderUI({
+          tagList(
+            p(" ", style = "margin-bottom: -5px;"),
+            shiny::div(id = "pick_subgroup.t", style = "margin-left: 5%",
+                       radioButtons("pick_subgroup.t", label =  "Please select a subgroup:", 
+                                    choices = subgroup.val,
+                                    selected = subgroup.val[1], width = '70%')),
+            p(" ", style = "margin-bottom: -20px;")
+          )
+        })
+      }
+    })
+    
+    observeEvent(input$surv.dataType_taxa,{
+      if (input$surv.dataType_taxa == "Count (rarefied)") {
+        taxa.types$dataType_Surv = "rare.count"           #module3 taxa count 수정 0812
+      } else if (input$surv.dataType_taxa == "Proportion") {
+        taxa.types$dataType_Surv = "imp.prop"
+      } else if (input$surv.dataType_taxa == "CLR (Default)") {
+        taxa.types$dataType_Surv = "clr"
+      } else if (input$surv.dataType_taxa == "Arcsine-root") {
+        taxa.types$dataType_Surv = "arcsin"
+      }
+    })
+    
+    observeEvent(input$covariatesCoxTaca,{
+      if (input$covariatesCoxTaca == "Covariate(s)") {
+        
+        shinyjs::show("covariates_variablesCoxT")
+        
+      } else if (input$covariatesCoxTaca == "None") {
+        
+        shinyjs::hide("covariates_variablesCoxT")
+        
+      }
+    })
+    
+    output$covariatesCoxT <- renderUI({
+      tagList(
+        p(" ", style = "margin-top: +25px;"),
+        
+        prettyRadioButtons("covariatesCoxTaxa",label = h4(strong("Covariate(s)?", style = "color:black")), status = "primary", icon = icon("check"),
+                           animation = "jelly", c("None", "Covariate(s)"), selected = "None",width = '70%'),
+        
+        shinyjs::hidden(
+          shiny::div(id = "covariates_variablesCoxT", style = "margin-left: 2%",
+                     prettyCheckboxGroup("covariatesOptionsCoxT"," Please select covariate(s)", status = "primary",
+                                         c(chooseData$nt.selected.bin, chooseData$nt.selected.con), width = '70%'))),
+        
+        p(" ", style = "margin-top: 5px;"),
+        
+        h4(strong("Method?", style = "color:black")),
+        
+        p(" ", style = "margin-bottom: -20px;"),
+        
+        radioButtons("surv3.taxa.method", label = "",#h4(strong("Method?", style = "color:black")),
+                     c("Cox model"), selected = "Cox model", width = '80%'),
+        
+        p(" ", style = "margin-bottom: -10px;"),
+        
+        prettyRadioButtons("include_species_model3", label = h4(strong("Taxonomic Ranks?", style = "color:black")), animation = "jelly",
+                           c("Phylum - Genus (Default)", "Phylum - Species"), selected = "Phylum - Genus (Default)",
+                           icon = icon("check"), width = '80%')#,
+        # actionButton("runbtn_CoxT", (strong("Run!")), class = "btn-info")
+      )
+    })
+    
     ###############################################
     ######### Taxa Random Forest Analysis #########
     ###############################################
@@ -1577,138 +1691,6 @@ server = function(input, output, session) {
     })
     
     
-    ######################################
-    ######### Taxa Surv Analysis #########
-    ######################################
-    
-    output$censor.selectCoxT <- renderUI({
-      tagList(
-        prettyRadioButtons("surv.dataType_taxa", label = h4(strong("Data Format?", style = "color:black")), animation = "jelly",
-                           c("CLR (Default)", "Count (rarefied)", "Proportion", "Arcsine-root"), selected = "CLR (Default)",width = '70%'),
-        uiOutput("surv3T.subgroup")
-      )
-    })
-    
-    output$subgroupSurv.T <- renderUI({
-      tagList(
-        
-        h4(strong("Subgroup Analysis?", style = "color:black")), 
-        p("You can select a subgroup of interest using a category of a nominal variable (usually the treatment variable) to perform subgroup analysis. If you select a subgroup, only the subjects in that subgroup are retained in the following analysis. Otherwise, all the subjects given in the data are retained (optional).", style = "font-size:11pt"),
-        
-        prettyRadioButtons("subgroup.t", label = NULL, status = "primary", icon = icon("check"),
-                           animation = "jelly", choices = c("No", "Yes"), selected="No", width = '70%'),
-        p(" ", style = "margin-bottom: -25px;"),
-        shinyjs::hidden(
-          tagList(
-            shiny::div(id = "subgroup.sel.t", style = "margin-left: 5%",
-                       selectInput("subgroup.sel.t", label = "", 
-                                   c("Choose one" = "", "null"), selected = "null", width = '70%'))
-          )
-        ),
-        p(" ", style = "margin-bottom: -10px;"),
-        uiOutput("pick_subgroup.t"),
-        p(" ", style = "margin-bottom: +20px;"),
-      )
-    })
-    
-    observeEvent(input$subgroup.t,{
-      if (input$subgroup.t == "Yes"){
-        cat.for.subgroup = chooseData$prim_varsCox[[1]][ !chooseData$prim_varsCox[[1]]%in% input$censor.select ]
-        
-        if(!is.null(input$subgroup.sel.t)){
-          if(input$subgroup.sel.t %in% cat.for.subgroup) {
-            updateSelectInput(session, "subgroup.sel.t", label = "", c("Choose one" = "", sort(cat.for.subgroup)), 
-                              selected = input$subgroup.sel.t)
-          } else {
-            updateSelectInput(session, "subgroup.sel.t", label = "", c("Choose one" = "", sort(cat.for.subgroup)), 
-                              selected = sort(cat.for.subgroup)[1])
-          } 
-        } else {
-          updateSelectInput(session, "subgroup.sel.t", label = "", c("Choose one" = "", sort(cat.for.subgroup)), 
-                            selected = sort(cat.for.subgroup)[1])
-        }
-        shinyjs::show("subgroup.sel.t")
-        shinyjs::show("pick_subgroup.t")
-      }
-      else {
-        shinyjs::hide("subgroup.sel.t")
-        shinyjs::hide("pick_subgroup.t")
-      }
-    })
-    
-    observeEvent(input$subgroup.sel.t, {
-      if(input$subgroup.sel.t %in% infile$ori.var[[1]]){
-        
-        subgroup.val <- alpha.bin.cat.ref.ori.func(chooseData$sam.dat, input$subgroup.sel.t)
-        
-        output$pick_subgroup.t <- renderUI({
-          tagList(
-            p(" ", style = "margin-bottom: -5px;"),
-            shiny::div(id = "pick_subgroup.t", style = "margin-left: 5%",
-                       radioButtons("pick_subgroup.t", label =  "Please select a subgroup:", 
-                                    choices = subgroup.val,
-                                    selected = subgroup.val[1], width = '70%')),
-            p(" ", style = "margin-bottom: -20px;")
-          )
-        })
-      }
-    })
-    
-    observeEvent(input$surv.dataType_taxa,{
-      if (input$surv.dataType_taxa == "Count (rarefied)") {
-        taxa.types$dataType_Surv = "rare.count"           #module3 taxa count 수정 0812
-      } else if (input$surv.dataType_taxa == "Proportion") {
-        taxa.types$dataType_Surv = "imp.prop"
-      } else if (input$surv.dataType_taxa == "CLR (Default)") {
-        taxa.types$dataType_Surv = "clr"
-      } else if (input$surv.dataType_taxa == "Arcsine-root") {
-        taxa.types$dataType_Surv = "arcsin"
-      }
-    })
-    
-    observeEvent(input$covariatesCoxT,{
-      if (input$covariatesCoxT == "Covariate(s)") {
-        
-        shinyjs::show("covariates_variablesCoxT")
-        
-      } else if (input$covariatesCoxT == "None") {
-        
-        shinyjs::hide("covariates_variablesCoxT")
-        
-      }
-    })
-    
-    output$covariatesCoxT <- renderUI({
-      tagList(
-        p(" ", style = "margin-top: +25px;"),
-        
-        prettyRadioButtons("covariatesCoxT",label = h4(strong("Covariate(s)?", style = "color:black")), status = "primary", icon = icon("check"),
-                           animation = "jelly", c("None", "Covariate(s)"), selected = "None",width = '70%'),
-        
-        shinyjs::hidden(
-          shiny::div(id = "covariates_variablesCoxT", style = "margin-left: 2%",
-                     prettyCheckboxGroup("covariatesOptionsCoxT"," Please select covariate(s)", status = "primary",
-                                         c(chooseData$nt.selected.bin, chooseData$nt.selected.con), width = '70%'))),
-        
-        #p(" ", style = "margin-bottom: -10px;"),
-        
-        p(" ", style = "margin-top: 5px;"),
-        
-        h4(strong("Method?", style = "color:black")),
-        
-        p(" ", style = "margin-bottom: -20px;"),
-        
-        radioButtons("surv3.taxa.method", label = "",#h4(strong("Method?", style = "color:black")),
-                     c("Cox model"), selected = "Cox model", width = '80%'),
-        
-        p(" ", style = "margin-bottom: -10px;"),
-        
-        prettyRadioButtons("include_species_model3", label = h4(strong("Taxonomic Ranks?", style = "color:black")), animation = "jelly",
-                           c("Phylum - Genus (Default)", "Phylum - Species"), selected = "Phylum - Genus (Default)",
-                           icon = icon("check"), width = '80%')#,
-        # actionButton("runbtn_CoxT", (strong("Run!")), class = "btn-info")
-      )
-    })
   })
   
   #########################################################################################################
@@ -1718,1085 +1700,6 @@ server = function(input, output, session) {
   ##########  RUN BUTTONS   ############
   ######################################
   ######################################
-  
-  ##########################################
-  ##     Survival Data Analysis           ##
-  ##########################################
-  
-  observeEvent(input$surv.KMrun, {
-    validate(
-      if (input$covariates.surv == "Covariate(s)" & is.null(input$covariatesOptions.surv)) {
-        showNotification("Error: Please select covariate(s) before you click 'Run!' button.",
-                         type = "error")
-      } else {
-        NULL
-      }
-    )
-    
-    shinyjs::disable("surv.KMrun")
-    # shinyjs::disable("chooseAdjustment")
-    # shinyjs::disable("primvar")
-    # shinyjs::disable("chooseMethod")
-    # shinyjs::disable("covariates")
-    # shinyjs::disable("covariatesOptions")
-    # shinyjs::disable("alphaCat1")
-    # shinyjs::disable("alphaCat2")
-    # shinyjs::disable("chooseData")
-    
-    withProgress({
-      
-      #########################################################
-      incProgress(1/10, message = "Applying changes")
-      
-      rename.cats_ref <- input$prim.var.rename1.Surv
-      rename.cats_com <- input$prim.var.rename2.Surv
-      
-      Surv.bin.cat.ref.ori.out <- alpha.bin.cat.ref.ori.func(chooseData$sam.dat, input$primvar.Surv.select)
-      
-      sam_dat0 <- alpha.bin.cat.recode.func(chooseData$sam.dat, input$primvar.Surv.select, Surv.bin.cat.ref.ori.out,
-                                            rename.cats_ref, rename.cats_com)
-      
-      print("here1")
-      
-      sample_here <<- sam_dat0
-      covariates_here <<- input$covariatesOptions.surv
-      
-      sam_dat0 <- sam_no_miss_cov(sam_dat0, input$covariatesOptions.surv)
-      print("here2")
-      print(sam_dat0)
-      
-      # sam_dat0 <- sam.follow.time.func(sam_dat, chooseData$surv.Time.select, chooseData$censor.select, chooseData$follow.time)
-      
-      # if (chooseData$subgroup == "Yes"){
-      #   sam_dat0 <- sam_dat0[ sam_dat0[[chooseData$subgroup.sel]] == chooseData$pick_subgroup ]
-      # }
-      
-      #########################################################
-      incProgress(3/10, message = "Displaying Variables in Use")
-      
-      #num.treat1_size <- surv.num.treat1(sam_dat, input$primvar.Surv.select)
-      #num.treat2_size <- surv.num.treat2(sam_dat, input$primvar.Surv.select)
-      
-      surv.dat0 <- surv.events.dat.func(sam_dat0, 
-                                        input$primvar.Surv.select, 
-                                        chooseData$surv.Time.select, 
-                                        chooseData$censor.select)
-      
-      num.treat1_size <- surv.num.treat1(surv.dat0, "treat")
-      num.treat2_size <- surv.num.treat2(surv.dat0, "treat")
-      
-      num.event <- surv.num.uncen(surv.dat0)
-      num.cen <- surv.num.censr(surv.dat0)
-      
-      output$treatment_size <- renderValueBox({
-        treat.ls <- unique( sam_dat0[[input$primvar.Surv.select]] )
-        
-        valueBox(
-          value = tags$p(paste0(num.treat1_size), style = "font-size: 75%;"),
-          paste("Sample Size (", treat.ls[1],")", sep="" ), icon = icon("user-circle"), color = "red")
-      })
-      
-      output$control_size <- renderValueBox({
-        treat.ls <- unique( sam_dat0[[input$primvar.Surv.select]] )
-        
-        valueBox(
-          value = tags$p(paste0(num.treat2_size), style = "font-size: 75%;"),
-          paste("Sample Size (", treat.ls[2],")", sep="" ), icon = icon("user-circle"), color = "orange")
-      })
-      
-      output$censored_size <- renderValueBox({
-        
-        valueBox(
-          value = tags$p(paste0(num.cen), style = "font-size: 75%;"),
-          "Sample Size (Censored)", icon = icon("user-circle"), color = "yellow")
-      })
-      
-      output$uncensored_size <- renderValueBox({
-        
-        valueBox(
-          value = tags$p(paste0(num.event), style = "font-size: 75%;"),
-          "Sample Size (Event)", icon = icon("user-circle"), color = "teal")
-      })
-      
-      
-      validate(
-        if (num.treat1_size < 2 & num.treat2_size < 2 & num.event < 2 ) {
-          if( num.treat1_size < 2 & num.treat2_size < 2 ){
-            showNotification("Error: Too few sample Treatment size. Select different Treatment variable.",
-                             type = "error")
-          }
-          if( num.event < 2 ){
-            showNotification("Error: Too few sample Event size. Select different Event variable.",
-                             type = "error")
-          }
-        }
-      )
-      
-      #########################################################
-      incProgress(6/10, message = "Calculating")
-      
-      # If Covariates = None, usual ( but if Cox is checked, get cox curve)
-      # If Covariates!= None, get Cox PH
-      
-      #sam_dat <- resue.sam.dat #chooseData$sam_dat
-      
-      if ( input$covariates.surv == "None") {
-        
-        surv.dat <- surv.events.dat.func(sam_dat0, 
-                                         input$primvar.Surv.select, 
-                                         chooseData$surv.Time.select, 
-                                         chooseData$censor.select)
-        
-        if ( input$pick_KM_Cox == "Cox model") {
-          cox.fit <- surv.Cox.fit.func1( surv.dat )
-          
-          print("11:11") 
-          print(cox.fit)
-          
-          output$surv_display_results = renderUI({
-            tagList(
-              box(title = strong( "Survival Curve"), 
-                  align = "center", width = NULL, status = "primary", solidHeader = TRUE,
-                  plotOutput("surv.plot2", height = 400, width = 500)
-              )
-            )
-          })
-          print("11:12") 
-          
-          output$surv.plot2 = renderPlot({
-            isolate(surv.Cox.plot.func( cox.fit, surv.dat ))
-          })
-        }
-        else {
-          surv.KM.fit <- surv.KM.fit.func( surv.dat )
-          
-          output$surv_display_results = renderUI({
-            tagList(
-              box(title = strong( "Kaplan-Meier Curve"), 
-                  align = "center", width = NULL, status = "primary", solidHeader = TRUE,
-                  plotOutput("surv.plot3", height = 400, width = 500)
-              )
-            )
-          })
-          output$surv.plot3 = renderPlot({
-            isolate(surv.KM.plot.func( surv.KM.fit, surv.dat, input$sig.test.Surv ))
-          })
-        }
-      }
-      else {
-        
-        surv.dat <- surv.events.dat.func2(sam_dat0, 
-                                          input$primvar.Surv.select, 
-                                          chooseData$surv.Time.select, 
-                                          chooseData$censor.select,
-                                          input$covariatesOptions.surv)
-        
-        cox.model <- surv.Cox.fit.func2( surv.dat, input$covariatesOptions.surv)
-        
-        output$surv_display_results = renderUI({
-          tagList(
-            box(title = strong( "Adjusted Survival Curve"),
-                align = "center", width = NULL, status = "primary", solidHeader = TRUE,
-                plotOutput("surv.plot1", height = 400, width = 500)))
-        })
-        
-        output$surv.plot1 = renderPlot({
-          isolate(surv.Cox.plot.func( cox.model, surv.dat, input$covariatesOptions.surv))
-        })
-      }
-      
-      if( input$pick_KM_Cox == "Cox model"){
-        ref_string = REFERENCE_CHECK(method_name = isolate(input$pick_KM_Cox) )
-        
-      }
-      else{
-        ref_string = REFERENCE_CHECK(method_name = isolate(input$pick_KM_Cox), sig_test = isolate(input$sig.test.Surv) )
-      }
-      
-      if (is.null(ref_string)) {
-        shinyjs::hide("referencesM1")
-      } else {
-        shinyjs::show("referencesM1")
-        output$referencesM1 = renderUI({
-          tagList(
-            box(title = strong("References"), width = NULL, status = "primary", solidHeader = TRUE,
-                HTML(paste(ref_string, collapse="<br/>"))
-            )
-          )
-        })
-      }
-      shinyjs::enable("surv.KMrun")
-      # shinyjs::enable("primvar")
-      # shinyjs::enable("chooseAdjustment")
-      # shinyjs::enable("chooseMethod")
-      # shinyjs::enable("covariates")
-      # shinyjs::enable("covariatesOptions")
-      # shinyjs::enable("alphaCat1")
-      # shinyjs::enable("alphaCat2")
-      # shinyjs::enable("chooseData")
-    })
-    
-  })
-  
-  ##########################################
-  ## Alpha Cox Proportion Hazard Analysis ##
-  ##########################################
-  observeEvent(input$runbtn_CoxA, {
-    validate(
-      if (input$covariatesCoxA == "Covariate(s)" & is.null(input$covariatesOptionsCoxA)) {
-        showNotification("Error: Please select covariate(s) before you click 'Run!' button.",
-                         type = "error")
-      } else {
-        NULL
-      }
-    )
-    
-    
-    shinyjs::disable("runbtn_CoxA")
-    # shinyjs::disable("chooseAdjustment")
-    # shinyjs::disable("primvar")
-    # shinyjs::disable("chooseMethod")
-    # shinyjs::disable("covariates")
-    # shinyjs::disable("covariatesOptions")
-    # shinyjs::disable("alphaCat1")
-    # shinyjs::disable("alphaCat2")
-    # shinyjs::disable("chooseData")
-    
-    withProgress(
-      
-      message = 'Calculation in progress',
-      detail = 'This may take a while...', value = 0, {
-        
-        ##############################################
-        incProgress(1/10, message = "Calculating")
-        
-        #chooseData$alpha.div = chooseData$alpha.div.rare
-        
-        ##############################################
-        incProgress(5/10, message = "Plotting")
-        
-        # Data Preparation
-        new_data <- data.union.func(chooseData$sam.dat, chooseData$alpha.div)
-        
-        new_sam.dat   <- new_data$new_sam.dat
-        new_alpha.div <- new_data$new_alpha.div
-        
-        
-        if (input$subgroup.a== "Yes"){
-          ind <- new_sam.dat [[input$subgroup.sel.a]] == input$pick_subgroup.a
-          new_sam.dat  <- new_sam.dat [ind, ]
-          new_alpha.div <- new_alpha.div [ind,]
-        }
-        
-        new_alpha.div <- alpha_no_miss_cov(new_sam.dat,  new_alpha.div, input$covariatesOptionsCoxA)
-        new_sam.dat <- sam_no_miss_cov(new_sam.dat, input$covariatesOptionsCoxA)
-        
-        new_surv.dat <- alpha.surv.events.dat.func(new_sam.dat, chooseData$surv.Time.select, chooseData$censor.select)
-        
-        if (input$covariatesCoxA =="None") {
-          alpha.cox.out <- alpha.cox.test(new_surv.dat, new_alpha.div)
-        }
-        else {
-          cov.dat <- subset(new_sam.dat, select = input$covariatesOptionsCoxA)
-          alpha.cox.out <- alpha.cox.test(new_surv.dat, new_alpha.div, cov.dat)
-        }
-        
-        multi.test <- FALSE
-        alphaS.down.results$alpha.cox.out = alpha.cox.out
-        
-        # if (input$chooseAdjustment3A == "Yes") {
-        #   multi.test <- TRUE
-        #   alphaS.down.results$alpha.cox.out = q.func(alpha.cox.out, method = "BH")
-        # }
-        # else if (input$chooseAdjustment3A == "No (Default)") {
-        #   multi.test <- FALSE
-        #   alphaS.down.results$alpha.cox.out = alpha.cox.out
-        # }
-        
-        alphaS.down.results$alpha.cox.forest.plot <- alpha.cox.forest.plot(alphaS.down.results$alpha.cox.out, multi.test = multi.test)
-        
-        output$alpha_surv_display_resultsCoxA = renderUI({
-          tagList(
-            box(title = strong( "Graphs for Alpha Diversity"),
-                align = "center", width = NULL, status = "primary", solidHeader = TRUE,
-                plotOutput("surv.plot.coxA", height = 400, width = 500)))
-        })
-        
-        output$surv.plot.coxA = renderPlot({
-          alphaS.down.results$alpha.cox.forest.plot
-        })
-        
-        output$alpha_surv_downloadTable = renderUI({
-          tagList(
-            p(" ", style = "margin-top: 20px;"),
-            box(title = strong("Download Output Table"), width = NULL, status = "primary", solidHeader = TRUE,
-                p("You can download data analysis outputs.",
-                  style = "font-size:11pt"), 
-                h5("Data Analysis Outputs"),
-                downloadButton("downloadTabl_aS1", "Download", width = '50%', style = "background-color: red3"), br(),
-                h5("Data Analysis Plot Image"),
-                downloadButton("downloadTabl_aS2", "Download", width = '50%', style = "background-color: red3")
-            )
-          )
-        })
-        output$downloadTabl_aS1 <- downloadHandler(
-          filename = function() {
-            paste("Alpha.Survival.Table.csv")
-          },
-          content = function(file) {
-            write.csv(alphaS.down.results$alpha.cox.out, file)
-          }
-        )
-        output$downloadTabl_aS2 <- downloadHandler(
-          
-          filename = function() {
-            paste("Alpha.Survival.Output.png")
-          },
-          content = function(file) {
-            #write.csv(alphaS.down.results$alpha.cox.forest.plot, file)
-            png(file=file,
-                width=650, height=400)
-            print( alphaS.down.results$alpha.cox.forest.plot )
-            dev.off()
-          }
-        )
-        
-        ref_string = REFERENCE_CHECK(method_name = isolate(input$surv3.alpha.method), FDR = "No (Default)")
-        
-        if (is.null(ref_string)) {
-          shinyjs::hide("referencesM3.alpha")
-        } else {
-          shinyjs::show("referencesM3.alpha")
-          output$referencesM3.alpha = renderUI({
-            tagList(
-              box(title = strong("References"), width = NULL, status = "primary", solidHeader = TRUE,
-                  HTML(paste(ref_string, collapse="<br/>"))
-              )
-            )
-          })
-        }
-      }
-    )
-    shinyjs::enable("runbtn_CoxA")
-  })
-  
-  ##########################################
-  ## Beta Cox Proportion Hazard Analysis ##
-  ##########################################
-  observeEvent(input$runbtn_CoxB, {
-    
-    validate(
-      if (input$covariatesCoxB == "Covariate(s)" & is.null(input$covariatesOptionsCoxB)) {
-        showNotification("Error: Please select covariate(s) before you click 'Run!' button.",
-                         type = "error")
-      } else {
-        NULL
-      }
-    )
-    shinyjs::disable("runbtn_CoxB")
-    
-    
-    withProgress(
-      
-      message = 'Calculation in progress',
-      detail = 'This may take a while...', value = 0, {
-        
-        ##############################################
-        
-        print("of course") 
-        incProgress(1/10, message = "Calculating")
-        
-        print('come in') 
-        
-        betaS.primvar_time = chooseData$surv.Time.select
-        betaS.primvar_cross  = chooseData$censor.select
-        
-        print(betaS.primvar_time) 
-        print(betaS.primvar_cross) 
-        
-        
-        beta.bin.cat.ref.ori.out <- beta.bin.cat.ref.ori.func(chooseData$sam.dat, betaS.primvar_cross)
-        print("next step") 
-        print(beta.bin.cat.ref.ori.out) 
-        
-        rename.catsbin_ref = beta.bin.cat.ref.ori.out[1]
-        rename.catsbin_com = beta.bin.cat.ref.ori.out[2]
-        
-        print(rename.catsbin_ref) 
-        print(rename.catsbin_com) 
-        
-        beta.sam_dat.bin <- beta.bin.cat.recode.func(chooseData$sam.dat, betaS.primvar_cross,
-                                                     beta.bin.cat.ref.ori.out,
-                                                     rename.catsbin_ref, rename.catsbin_com)
-        
-        print(beta.sam_dat.bin) 
-        print("How about?") 
-        
-        beta.sam_dat.bin <- sam_no_miss_cov(beta.sam_dat.bin, input$covariatesOptionsCoxB)
-        
-        print(beta.sam_dat.bin) 
-        
-        
-        ds.Ks.res <- ds.Ks$res
-        ds.Ks.res <- beta_no_miss_cov(beta.sam_dat.bin, ds.Ks.res, input$covariatesOptionsCoxB)
-        
-        print(ds.Ks.res) 
-        print("fin") 
-        
-        if (input$subgroup.b== "Yes"){
-          ind.sub <- beta.sam_dat.bin [[input$subgroup.sel.b]] == input$pick_subgroup.b
-          beta.sam_dat.bin  <- beta.sam_dat.bin [ind.sub, ]
-        }
-        
-        print("maybe here") 
-        
-        for(i in 1:2){
-          for(j in 1:length(ds.Ks$res[[i]])) {
-            ind <- rownames(ds.Ks$res[[i]][[j]]) %in% rownames(beta.sam_dat.bin)
-            ds.Ks.res[[i]][[j]] <- ds.Ks$res[[i]][[j]][ind,ind]
-          }
-        }
-        
-        print(i) 
-        print(j) 
-        
-        if (input$covariatesCoxB == "None") {
-          betaS.bin.out <- betaS.bin.cat.ref.func(betaS.primvar_cross, betaS.primvar_time,
-                                                  rename.catsbin_ref, rename.catsbin_com,
-                                                  beta.sam_dat.bin, Ds.Ks = ds.Ks.res)
-          betaS.data.results$data.q.out <- betaS.bin.out
-        } 
-        
-        else if (input$covariatesCoxB == "Covariate(s)") {
-          if (is.null(input$covariatesOptionsCoxB)) {
-            betaS.bin.out <- betaS.bin.cat.ref.func(betaS.primvar_cross, betaS.primvar_time,
-                                                    rename.catsbin_ref, rename.catsbin_com,
-                                                    beta.sam_dat.bin, Ds.Ks = ds.Ks.res)
-            betaS.data.results$data.q.out <- betaS.bin.out
-          } 
-          else {
-            print("maybe it does not works") 
-            betaS.bin.cov.out <- betaS.bin.cov.cat.ref.func(betaS.primvar_cross, betaS.primvar_time,
-                                                            rename.catsbin_ref, rename.catsbin_com,
-                                                            input$covariatesOptionsCoxB, beta.sam_dat.bin,
-                                                            Ds.Ks = ds.Ks.res)
-            print(betaS.bin.cov.out) 
-            print("what?") 
-            betaS.data.results$data.q.out <- betaS.bin.cov.out
-          }
-        }
-        
-        if (isolate(input$covariatesCoxB) == "None") {
-          print("no here") 
-          betaS.down.results$CS = mirkatS.bin(betaS.data.results$data.q.out)
-          betaS.plot.info <- mirkatS.bin.plot1(betaS.down.results$CS, betaS.data.results$data.q.out)
-          
-          output$m3_beta_2d = renderPlot({
-            isolate(try(mirkatS.bin.plot2(betaS.down.results$CS, betaS.data.results$data.q.out, betaS.plot.info$mod, betaS.plot.info$sub.tit), silent = TRUE))
-          })
-        } 
-        
-        else if (isolate(input$covariatesCoxB) == "Covariate(s)") {
-          
-          betaS.down.results$CS = mirkatS.bin.cov(betaS.data.results$data.q.out)
-          print('betas') 
-          print(betaS.down.results$CS) 
-          
-          betaS.plot.info <- mirkatS.bin.plot1(betaS.down.results$CS, betaS.data.results$data.q.out)
-          print(betaS.plot.info) 
-
-          print("8:01") 
-          
-          output$m3_beta_2d = renderPlot({
-            isolate(try( mirkatS.bin.plot2(betaS.down.results$CS, betaS.data.results$data.q.out, betaS.plot.info$mod, betaS.plot.info$sub.tit), silent = TRUE))
-          })
-        }
-        
-        print("maybe real fin" ) 
-        betaS.data.results$betaS.plot.info <- isolate(betaS.plot.info)
-        
-        # output$betaS_display_results_cross = renderUI({
-        #   tagList(
-        #     tabPanel(title = strong("Graphs for Beta Diversity"), align = "center",
-        #              tabsetPanel(id = "m3betaTabs",
-        #                          tabPanel(title = "2D PCoA", align = "center",
-        #                                   plotOutput("m3_beta_2d", height = 850, width = 500)))
-        #     )
-        #   )
-        # })
-        
-        
-        output$betaS_display_results_cross = renderUI({
-          tagList(
-            box(title = strong("Graphs for Beta Diversity"), 
-                align = "center", width = NULL, status = "primary", solidHeader = TRUE,
-                plotOutput("m3_beta_2d", height = 850, width = 500)
-            )
-          )
-        })
-        
-        beta_ind <- c("Jaccard", "Bray-Curtis", "U.UniFrac", "G.UniFrac", "W.UniFrac")
-        
-        print(beta_ind) 
-        
-        output$beta_surv_downloadTable = renderUI({
-          tagList(
-            p(" ", style = "margin-top: 20px;"),
-            box(title = strong("Download Output Table"), width = NULL, status = "primary", solidHeader = TRUE,
-                p("You can download the summary statistics and data analysis outputs.",
-                  style = "font-size:11pt"), 
-                h5("Data Analysis Outputs"),
-                downloadButton("downloadTabl_bS1", "Download", width = '50%', style = "background-color: red3"), br(),
-                h5("Data Analysis Plot Image"),
-                downloadButton("downloadTabl_bS2", "Download", width = '50%', style = "background-color: red3")
-            )
-          )
-        })
-        
-        print("-1") 
-        
-        output$downloadTabl_bS1 <- downloadHandler(
-          filename = function() {
-            paste("Beta.Survival.Table.csv")
-          },
-          content = function(file) {
-            out_temp = as.data.frame(unlist(betaS.down.results$CS))
-            rownames(out_temp) = c("Jaccard","Bray.Curtis","U.UniFrac","G.UniFrac","W.UniFrac", "OMiRKAT-S_p")
-            colnames(out_temp) = "p-value"
-            betaS.down.results$CS = out_temp
-            #write.table(betaS.down.results$CS, file, sep="\t")
-            write.csv(betaS.down.results$CS, file)
-          }
-        )
-        output$downloadTabl_bS2 <- downloadHandler(
-          filename = function() {
-            paste("Beta.Survival.Output.png")
-          },
-          content = function(file) {
-            png(file=file,
-                width=1050, height=950)
-            print( mirkatS.bin.plot2(betaS.down.results$CS, betaS.data.results$data.q.out, betaS.plot.info$mod, betaS.plot.info$sub.tit) )
-            dev.off()
-          }
-        )
-        ref_string = REFERENCE_CHECK(method_name = isolate(input$surv3.beta.method), FDR = "No")
-        if (is.null(ref_string)) {
-          shinyjs::hide("referencesM3.beta")
-        } 
-        else {
-          shinyjs::show("referencesM3.beta")
-          output$referencesM3.beta = renderUI({
-            tagList(
-              box(title = strong("References"), width = NULL, status = "primary", solidHeader = TRUE,
-                  HTML(paste(ref_string, collapse="<br/>"))
-              )
-            )
-          })
-        }
-      }
-    )
-    
-    shinyjs::enable("runbtn_CoxB")
-    
-  })
-  ##########################################
-  ## Taxa Cox Proportion Hazard Analysis ###
-  ##########################################
-  observeEvent(input$runbtn_CoxT, {
-    validate(
-      if (input$covariatesCoxT == "Covariate(s)" & is.null(input$covariatesOptionsCoxT)) {
-        showNotification("Error: Please select covariate(s) before you click 'Run!' button.",
-                         type = "error")
-      } else {
-        NULL
-      }
-    )
-    
-    shinyjs::disable("runbtn_CoxT")
-    
-    
-    
-    taxa.sam.dat <- chooseData$sam.dat[match(rownames(chooseData$taxa.out$clr$phylum),rownames(chooseData$sam.dat)),]
-    taxa.out.surv <- chooseData$taxa.out[[taxa.types$dataType_Surv]]
-    taxa.out.surv <- taxa_no_miss_cov_ind(taxa.sam.dat, taxa.out.surv, input$covariatesOptionsCoxT)
-    
-    taxa.names.out.surv <- chooseData$taxa.names.out
-    
-    if (input$subgroup.t== "Yes"){
-      ind.sub <- taxa.sam.dat[[input$subgroup.sel.t]] == input$pick_subgroup.t
-      taxa.sam.dat <- taxa.sam.dat[-ind.sub,]  
-      taxa.out.surv <- lapply(taxa.out.surv, function(x){
-        return(x[-ind.sub,])})
-    }
-    
-    validate(
-      if (sum(taxa.sam.dat[,chooseData$censor.select], na.rm = T) <= 0) {
-        showNotification("Error: No Events in Data",
-                         type = "error")
-      } else {
-        NULL
-      }
-    )
-    
-    shinyjs::disable("runbtn_CoxT")
-    
-    withProgress(
-      
-      message = 'Calculation in progress',
-      detail = 'This may take a while...', value = 0, {
-        
-        ##############################################
-        incProgress(1/10, message = "Calculating")
-        
-        #chooseData$alpha.div = chooseData$alpha.div.rare
-        
-        ##############################################
-        incProgress(5/10, message = "Plotting")
-        
-        if (input$include_species_model3 == "Phylum - Species") {
-          include = TRUE
-        } else {
-          include = FALSE
-        }
-        
-        incProgress(1/10, message = "Examining Data in progress")
-        
-        survtime <- taxa.sam.dat[,chooseData$surv.Time.select]
-        status <- taxa.sam.dat[,chooseData$censor.select]
-        
-        if (input$covariatesCoxT =="None") {
-          taxa.cox.out <- taxa.cox.test(survtime, status, taxa.out.surv)
-        }
-        else {
-          taxa.cox.out <- taxa.cox.test(survtime, status, taxa.out.surv, cov.dat = taxa.sam.dat[,input$covariatesOptionsCoxT])
-        }
-        
-        nrow <- surv.taxa.forest.plot.pages(taxa.cox.out, include, mult.test.cor = "TRUE")
-        forestplot.data <- surv.taxa.forest.plot.pages1(taxa.cox.out, taxa.names.out.surv, report.type = "HR", species.include = include, mult.test.cor = TRUE)
-        
-        if (any(!is.na(unlist(taxa.names.out.surv$duplicates)))) {
-          duplicate.taxa <- sapply(strsplit(unlist(taxa.names.out.surv$duplicates), " :"),  "[", 1)
-          taxon.inplot <- unlist(lapply(forestplot.data$all.text.tab, `[`, i =, j = 3))
-          duplicate.texts <- sum(duplicate.taxa %in% taxon.inplot)
-        } else {
-          duplicate.texts <- 0
-        }
-        
-        if (duplicate.texts > 0) {
-          output$surv_taxa_results = renderUI({
-            tagList(
-              do.call(tabsetPanel, lapply(1:nrow, function(i) {
-                tabPanel(title = paste0("Page ", i), align = "center",
-                         plotOutput(paste0("forest_Surv", i), height = 800, width = 750),
-                         plotOutput(paste0("duplicates_surv", i), height = 11.5*duplicate.texts+10, width = 750))
-              })) 
-            )
-          })
-        } else {
-          output$surv_taxa_results= renderUI({
-            tagList(
-              do.call(tabsetPanel, lapply(1:nrow, function(i) {
-                tabPanel(title = paste0("Page ", i), align = "center",
-                         plotOutput(paste0("forest_Surv", i), height = 800, width = 750))
-              })) 
-            )
-          })
-        }
-        
-        lapply(1:nrow, function(j) {
-          output[[paste0("forest_Surv", j)]] <- renderPlot({
-            taxa.surv.forest.plot.pages2(page.taxa.q.out = forestplot.data, page = j)
-          })
-        })
-        
-        lapply(1:nrow, function(j) {
-          output[[paste0("duplicates_surv", j)]] <- renderPlot({
-            duplicate.list(duplicate.taxa, taxon.inplot, chooseData$taxa.names.out$duplicates)
-          })
-        })
-        
-        taxa.sig <- taxa.sig.dend(taxa.cox.out, chooseData$NAadded$tax.tab, "twopi", include)
-        
-        flow.text <- taxa.sig$flow.text
-        taxon.tab <- taxa.sig$taxon.tab
-        ci.tab.all <- taxa.sig$ci.tab.all
-        
-        if ( include == FALSE){
-          taxon.tab <- taxon.tab[ !grepl("s_", taxon.tab$Taxon, fixed = TRUE), ]
-        }
-        
-        if ( length(ci.tab.all) > 1 ){
-          
-          for( i in 1:nrow(taxon.tab)){
-            if ( ci.tab.all[-1][i] < 0){
-              taxon.tab[i,1] <- cell_spec(taxon.tab[i,1], "html", color = "blue")
-              taxon.tab[i,2] <- cell_spec(taxon.tab[i,2], "html", color = "black")
-            }
-            else{
-              taxon.tab[i,1] <- cell_spec(taxon.tab[i,1], "html", color = "red")
-              taxon.tab[i,2] <- cell_spec(taxon.tab[i,2], "html", color = "black")
-            }
-          }
-        }
-        
-        N <- dim(taxon.tab)[1]
-        itr <- ceiling(N/5)
-        tab.one   <- data.frame( matrix(ncol=2,nrow=0) )
-        tab.two   <- data.frame( matrix(ncol=2,nrow=0) )
-        tab.three <- data.frame( matrix(ncol=2,nrow=0) )
-        tab.four  <- data.frame( matrix(ncol=2,nrow=0) )
-        tab.five  <- data.frame( matrix(ncol=2,nrow=0) )
-        
-        colnames(tab.one) <- c("ID", "Taxon")
-        colnames(tab.two) <- c("ID", "Taxon")
-        colnames(tab.three) <- c("ID", "Taxon")
-        colnames(tab.four) <- c("ID", "Taxon")
-        colnames(tab.five) <- c("ID", "Taxon")
-        
-        if ( dim(taxon.tab)[1] > 0 ) {
-          
-          i = 1
-          j = 1
-          N.rmd <- N %% 5
-          N.fix <- N + 5 - N.rmd
-          while ( i <= itr) {
-            tab.one  [i,] <- taxon.tab[j,]
-            tab.two  [i,] <- taxon.tab[j+1,]
-            tab.three[i,] <- taxon.tab[j+2,]
-            tab.four [i,] <- taxon.tab[j+3,]
-            tab.five [i,] <- taxon.tab[j+4,]
-            i <- i + 1  
-            j <- j + 5
-          }
-          row.names(tab.one) <- NULL
-          row.names(tab.two) <- NULL
-          row.names(tab.three) <- NULL
-          row.names(tab.four) <- NULL
-          row.names(tab.five) <- NULL
-          
-          tab.one <- na.omit(tab.one)
-          tab.two <- na.omit(tab.two)
-          tab.three <- na.omit(tab.three)
-          tab.four <- na.omit(tab.four)
-          tab.five <- na.omit(tab.five)
-        }
-        
-        output$survival_taxa_display_dend = renderUI({
-          
-          box(title = strong("Dendrogram"), width = 12, status = "primary", solidHeader = TRUE,
-              
-              fluidRow(width = 12, align = "center",
-                       div(style = "display: inline-block:vertical-align:top;", grVizOutput("dendrogram_surv", height = 1000, width = 1000)) ),
-              br(),
-              fluidRow(width = 12, align = "center",
-                       tagList(
-                         div(style="display: inline-block;vertical-align:top;", htmlOutput("M3sig_1_taxonlist") ),
-                         div(style="display: inline-block;vertical-align:top;", htmlOutput("M3sig_2_taxonlist") ),
-                         div(style="display: inline-block;vertical-align:top;", htmlOutput("M3sig_3_taxonlist") ),
-                         div(style="display: inline-block;vertical-align:top;", htmlOutput("M3sig_4_taxonlist") ),
-                         div(style="display: inline-block;vertical-align:top;", htmlOutput("M3sig_5_taxonlist") )
-                       )
-              )
-          )
-        })
-        
-        output$dendrogram_surv = renderGrViz({
-          flow.text
-        })
-        output$M3sig_1_taxonlist <- renderText({
-          sig.tab1 <- kable(tab.one, 'html', booktabs =TRUE, escape = FALSE) %>%
-            kable_styling(latex_options = c('hold_position'))
-          sig.tab1
-        })
-        output$M3sig_2_taxonlist <- renderText({
-          
-          sig.tab2 <- kable(tab.two, 'html', booktabs =TRUE, escape = FALSE) %>%
-            kable_styling(latex_options = c('hold_position'))
-          sig.tab2
-        })
-        output$M3sig_3_taxonlist <- renderText({
-          
-          sig.tab3 <- kable(tab.three, 'html', booktabs =TRUE, escape = FALSE) %>%
-            kable_styling(latex_options = c('hold_position'))
-          sig.tab3
-        })
-        output$M3sig_4_taxonlist <- renderText({
-          
-          sig.tab4 <- kable(tab.four, 'html', booktabs =TRUE, escape = FALSE) %>%
-            kable_styling(latex_options = c('hold_position'))
-          sig.tab4
-        })
-        output$M3sig_5_taxonlist <- renderText({
-          
-          sig.tab5 <- kable(tab.five, 'html', booktabs =TRUE, escape = FALSE) %>%
-            kable_styling(latex_options = c('hold_position'))
-          sig.tab5
-        })
-        
-        
-        incProgress(1/10, message = "Displaying Results in progress")
-        output$taxa_surv_downloadTable = renderUI({
-          tagList(
-            p(" ", style = "margin-top: 20px;"),
-            box(title = strong("Download Output Table"), width = NULL, status = "primary", solidHeader = TRUE,
-                p("You can download the summary statistics and data analysis outputs.",
-                  style = "font-size:11pt"),
-                #h5("Summary Statistics"),
-                #downloadButton("tdownloadTabl1", "Download", width = '50%', style = "background-color: red3"), br(),
-                h5("Data Analysis Outputs"),
-                downloadButton("tdownloadTabl2", "Download", width = '50%', style = "background-color: red3"),
-                h5("Dendrogram"),
-                downloadButton("gdownload", "Download", width = '50%', style = "background-color: red3")
-            )
-          )
-        })
-        
-        output$tdownloadTabl2 <- downloadHandler(
-          filename = function() {
-            paste("Taxa.Analysis.Output.zip")
-          },
-          content = function(DA.file) {
-            temp <- setwd(tempdir())
-            on.exit(setwd(temp))
-            dataFiles = c("Phylum.txt", "Class.txt", "Order.txt" ,"Family.txt", "Genus.txt", "Species.txt")
-            write.table(as.data.frame(taxa.cox.out$phylum), file = "Phylum.txt", row.names = TRUE, col.names = TRUE, sep = "\t")
-            write.table(as.data.frame(taxa.cox.out$class), file = "Class.txt", row.names = TRUE, col.names = TRUE, sep = "\t")
-            write.table(as.data.frame(taxa.cox.out$order), file = "Order.txt", row.names = TRUE, col.names = TRUE, sep = "\t")
-            write.table(as.data.frame(taxa.cox.out$family), file = "Family.txt", row.names = TRUE, col.names = TRUE, sep = "\t")
-            write.table(as.data.frame(taxa.cox.out$genus), file = "Genus.txt", row.names = TRUE, col.names = TRUE, sep = "\t")
-            write.table(as.data.frame(taxa.cox.out$species), file = "Species.txt", row.names = TRUE, col.names = TRUE, sep = "\t")
-            zip(zipfile=DA.file, files=dataFiles)
-          }
-        )
-        
-        output$gdownload <- downloadHandler(
-          filename = function() {
-            paste("Taxa.Analysis.Graphical.Output", ".html", sep="")
-          },
-          content = function(file) {
-            htmlwidgets::saveWidget(as_widget(taxa.sig.dend(taxa.cox.out, chooseData$NAadded$tax.tab, "twopi", include)), file)
-          }
-        )
-        
-        ref_string = REFERENCE_CHECK(data_transform = input$surv.dataType_taxa, method_name = isolate(input$surv3.taxa.method), FDR = "Yes")
-        if (is.null(ref_string)) {
-          shinyjs::hide("referencesM3.taxa")
-        } else {
-          shinyjs::show("referencesM3.taxa")
-          output$referencesM3.taxa = renderUI({
-            tagList(
-              box(title = strong("References"), width = NULL, status = "primary", solidHeader = TRUE,
-                  HTML(paste(ref_string, collapse="<br/>"))
-              )
-            )
-          })
-        }
-      }
-    )
-    
-    
-    shinyjs::enable("runbtn_CoxT")
-  })
-  
-  
-  ###################################################
-  ####### Taxa Random Survival Forest Analysis ######
-  ###################################################
-  observeEvent(input$runbtn_model4, {
-    
-    taxa.sam.dat <- chooseData$sam.dat[match(rownames(chooseData$taxa.out$clr$phylum),rownames(chooseData$sam.dat)),]
-    surv.dat <- surv.events.dat.func(taxa.sam.dat, 
-                                     surv.con = chooseData$surv.Time.select, 
-                                     surv.second.bin = chooseData$censor.select)
-    taxa.dat.4 <- chooseData$taxa.out[[taxa.types$dataType_model4]]
-    
-    if (input$subgroup.4 == "Yes"){
-      
-      ind.sub <- taxa.sam.dat[[input$subgroup.sel.4]] == input$pick_subgroup.4
-      taxa.sam.dat <- taxa.sam.dat[-ind.sub,]  
-      surv.dat <- surv.events.dat.func(taxa.sam.dat, 
-                                       surv.con = chooseData$surv.Time.select, 
-                                       surv.second.bin = chooseData$censor.select)
-      
-      taxa.dat.4 <- lapply(taxa.dat.4, function(x){
-        return(x[-ind.sub,])})
-    }
-    
-    validate(
-      if (sum(surv.dat$status, na.rm = T) <= 0) {
-        showNotification("Error: No Events in Data",
-                         type = "error")
-      } else {
-        NULL
-      }
-    )
-    
-    shinyjs::disable("runbtn_model4")
-    shinyjs::disable("surv4.Time.select")
-    shinyjs::disable("surv4.dataType_taxa")
-    shinyjs::disable("surv4.censor.select")
-    shinyjs::disable("surv4.method.select")
-    shinyjs::disable("surv4.fold")
-    
-    withProgress(
-      
-      message = 'Calculation in progress',
-      detail = 'This may take a while...', value = 0, {
-        
-        incProgress(1/10, message = "Calculating")
-        
-        rank <- c("Phylum", "Class", "Order", "Family", "Genus", "Species")
-        
-        out <- list()
-        
-        folds <- as.numeric(isolate(input$surv4.fold.select))
-        trees <- as.numeric(isolate(input$surv4.tree.select))
-        
-        #taxa.dat <- chooseData$taxa.out[[taxa.types$dataType_model4]]
-        
-        if(input$include_speciesM4 == "Phylum - Genus (Default)"){
-          ranks = 5
-        } else {
-          ranks = 6
-        }
-        
-        for(i in 1:ranks) {
-          taxa.dat.4[[i]] <- taxa.dat.4[[i]][rownames(surv.dat),]
-        }
-        
-        
-        if (input$surv4.method.select == "Random survival forests") {
-          incProgress(6/10, message = "Random survival forests")
-          set.seed(521)
-          rf.fit.out <- try(surv.random.forest(taxa.dat.4, chooseData$taxa.names.out, surv.dat, n.tree = trees, ranks.upto = ranks), silent = TRUE)
-          
-          importance <- list()
-          duplicates <- list()
-          err.dat <- list()
-          
-          for (k in 1:ranks) {
-            print(k) 
-            imp <- as.matrix(rf.fit.out$rf.fit[[k]]$importance)
-            colnames(imp) <- "Importance"
-            importance[[k]] <- imp
-            #if (class(rf.fit.out$rf.fit[[k]]) != "try-error"){
-            #}
-            if (sum(is.na(chooseData$taxa.names.out$duplicates[[k]])) == 0) {
-              duplicate.taxa <- sapply(strsplit(unlist(chooseData$taxa.names.out$duplicates[[k]]), " :"),  "[", 1)
-              duplicates[[k]] <- rep(TRUE, length(duplicate.taxa)) #%in% taxon.inplot
-            } else {
-              duplicates[[k]] <- FALSE
-            }
-            err.dat[[k]] = try(as.data.frame(cbind(ntree = c(1:trees)[!is.na(rf.fit.out$rf.fit[[k]]$err.rate)], err.rate = rf.fit.out$rf.fit[[k]]$err.rate[!is.na(rf.fit.out$rf.fit[[k]]$err.rate)])), silent = TRUE)
-          }
-          
-          print("done") 
-          
-          incProgress(2/10, message = "Plotting")
-          output$surv4_display_results = renderUI({
-            tagList(
-              do.call(tabsetPanel, lapply(1:ranks, function(i) {
-                tabPanel(title = rank[i], align = "center",
-                         tabsetPanel(tabPanel(title = "Variable Importance", align = "center",
-                                              plotOutput(paste0("importance", i), height = 600, width = 500),
-                                              plotOutput(paste0("duplicates_m4", i), height = 11.5*sum(duplicates[[i]])+10, width = 500)),
-                                     tabPanel(title = "Error Rate", align = "center",
-                                              plotOutput(paste0("err.rate", i), height = 600, width = 500)))
-                )
-              }))
-            )
-          })
-          
-          
-          incProgress(1/10, message = "Plotting")
-          lapply(1:ranks, function(j) {
-            if (class(rf.fit.out)[1] == "try-error") {
-              output[[paste0("importance", j)]] <- renderPlot({
-                text(x = 0.5, y = 0.5, "Error : Please try different number of folds or follow-up period.", 
-                     cex = 1.2, col = "black")
-              })
-            } else {
-              output[[paste0("importance", j)]] <- renderPlot({
-                plot.importance(rf.fit.out$rf.fit[[j]], input$surv4.num.display)
-              })
-              output[[paste0("err.rate", j)]] <- renderPlot({
-                par(mar = c(7,9,2,2))
-                plot(smooth.spline(err.dat[[j]]), type = "l", ylab = "Error Rate", xlab = "Number of Trees", lwd = 1.5)
-              })
-              
-              lapply(1:ranks, function(j) {
-                output[[paste0("duplicates_m4", j)]] <- renderPlot({
-                  surv.en.duplicate.list(duplicates[[j]], chooseData$taxa.names.out$duplicates[[j]])
-                })
-              })
-              
-              output$downloadTable_m4 = renderUI({
-                tagList(
-                  p(" ", style = "margin-top: 20px;"),
-                  box(title = strong("Download Output Table"), width = NULL, status = "primary", solidHeader = TRUE,
-                      p("You can download the data analysis outputs.",
-                        style = "font-size:11pt"),
-                      h5("Data Analysis Outputs"),
-                      downloadButton("m4tdownloadTabl", "Download", width = '50%', style = "background-color: red3")
-                  )
-                )
-              })
-              
-              output$m4tdownloadTabl <- downloadHandler(
-                filename = function() {
-                  paste("Model4.Analysis.Output.zip")
-                },
-                content = function(DA.file) {
-                  temp <- setwd(tempdir())
-                  on.exit(setwd(temp))
-                  if (ranks == 5) {
-                    dataFiles = c("Phylum.txt", "Class.txt", "Order.txt" ,"Family.txt", "Genus.txt")
-                    write.table(as.data.frame(importance[[1]]), file = "Phylum.txt", sep = "\t")
-                    write.table(as.data.frame(importance[[2]]), file = "Class.txt", sep = "\t")
-                    write.table(as.data.frame(importance[[3]]), file = "Order.txt", sep = "\t")
-                    write.table(as.data.frame(importance[[4]]), file = "Family.txt", sep = "\t")
-                    write.table(as.data.frame(importance[[5]]), file = "Genus.txt", sep = "\t")
-                  }
-                  else if(ranks == 6) {
-                    dataFiles = c("Phylum.txt", "Class.txt", "Order.txt" ,"Family.txt", "Genus.txt", "Species.txt")
-                    write.table(as.data.frame(importance[[1]]), file = "Phylum.txt", sep = "\t")
-                    write.table(as.data.frame(importance[[2]]), file = "Class.txt", sep = "\t")
-                    write.table(as.data.frame(importance[[3]]), file = "Order.txt", sep = "\t")
-                    write.table(as.data.frame(importance[[4]]), file = "Family.txt", sep = "\t")
-                    write.table(as.data.frame(importance[[5]]), file = "Genus.txt", sep = "\t")
-                    write.table(as.data.frame(importance[[6]]), file = "Species.txt", sep = "\t")
-                  }
-                  zip(zipfile=DA.file, files=dataFiles)
-                }
-              )
-            }
-          })
-        } 
-        
-        ref_string = REFERENCE_CHECK(data_transform = input$surv4.dataType_taxa, method_name = isolate(input$surv4.method.select), FDR = "No")
-        if (is.null(ref_string)) {
-          shinyjs::hide("referencesM4")
-        } else {
-          shinyjs::show("referencesM4")
-          output$referencesM4 = renderUI({
-            tagList(
-              box(title = strong("References"), width = NULL, status = "primary", solidHeader = TRUE,
-                  HTML(paste(ref_string, collapse="<br/>"))
-              )
-            )
-          })
-        }
-      }
-    )
-    
-    
-    shinyjs::enable("surv4.censor.select")
-    shinyjs::enable("surv4.method.select")
-    shinyjs::enable("surv4.fold.select")
-    shinyjs::enable("surv4.Time.select")
-    shinyjs::enable("surv4.dataType_taxa")
-    shinyjs::enable("runbtn_model4")
-  })
   
   
   ##########################################
@@ -2865,7 +1768,51 @@ server = function(input, output, session) {
                                          censor = chooseData$censor.select,
                                          follow = chooseData$follow.time)
         
-  
+        # if (input$subgroup == "No") {
+        #   infile$qc_biom = biom.cleanS(infile$biom,
+        #                                input$kingdom,
+        #                                lib.size.cut.off = input$slider1,
+        #                                mean.prop.cut.off = input$slider2/100,
+        #                                rem.tax = rem.tax.complete, rem.tax.str = rem.tax.partial,
+        #                                surv.time = chooseData$surv.Time.select,
+        #                                censor = chooseData$censor.select,
+        #                                follow = chooseData$follow.time)
+        #   infile$qc_biomNA = biom.cleanSNA(infile$biom,
+        #                                    input$kingdom,
+        #                                    lib.size.cut.off = input$slider1,
+        #                                    mean.prop.cut.off = input$slider2/100,
+        #                                    rem.tax = rem.tax.complete, rem.tax.str = rem.tax.partial,
+        #                                    surv.time = chooseData$surv.Time.select,
+        #                                    censor = chooseData$censor.select,
+        #                                    follow = chooseData$follow.time)
+        # }
+        # else if (input$subgroup == "Yes") {
+        #   chooseData$subgroup.sel = input$subgroup.sel
+        #   chooseData$pick_subgroup = input$pick_subgroup
+        # 
+        #   infile$qc_biom = biom.cleanS(infile$biom,
+        #                                input$kingdom,
+        #                                lib.size.cut.off = input$slider1,
+        #                                mean.prop.cut.off = input$slider2/100,
+        #                                rem.tax = rem.tax.complete, rem.tax.str = rem.tax.partial,
+        #                                surv.time = chooseData$surv.Time.select,
+        #                                censor = chooseData$censor.select,
+        #                                follow = chooseData$follow.time,
+        #                                subgroup.var = chooseData$subgroup.sel,
+        #                                subgroup = chooseData$pick_subgroup)
+        #   infile$qc_biomNA = biom.cleanSNA(infile$biom,
+        #                                input$kingdom,
+        #                                lib.size.cut.off = input$slider1,
+        #                                mean.prop.cut.off = input$slider2/100,
+        #                                rem.tax = rem.tax.complete, rem.tax.str = rem.tax.partial,
+        #                                surv.time = chooseData$surv.Time.select,
+        #                                censor = chooseData$censor.select,
+        #                                follow = chooseData$follow.time,
+        #                                subgroup.var = chooseData$subgroup.sel,
+        #                                subgroup = chooseData$pick_subgroup)
+        # }
+        
+        
         incProgress(3/10, message = "Rarefying in progress")
         lib_size.sum = lib.size.func(infile$qc_biom)$lib.size.sum
         infile$rare_biom = rarefy.func(infile$qc_biom, 
@@ -2945,12 +1892,34 @@ server = function(input, output, session) {
       })
     
     
+    # shinyjs::disable("covariatesCoxA")
+    # shinyjs::disable("surv3.alpha.method")
     shinyjs::disable("runbtn_CoxA")
+    # shinyjs::disable("chooseAdjustment3A")
+    # shinyjs::disable("covariatesOptionsCoxA")
+    
+    
+    # shinyjs::disable("covariatesCoxB")
+    # shinyjs::disable("surv3.beta.method")
     shinyjs::disable("runbtn_CoxB")
+    # shinyjs::disable("covariatesOptionsCoxB")
+    
+    # shinyjs::disable("primvar")
+    # shinyjs::disable("chooseMethod")
     shinyjs::disable("runbtn_bin")
+    # shinyjs::disable("covariates")
+    # shinyjs::disable("chooseAdjustment")
+    
+    # shinyjs::disable("beta_chooseMethod_bin")
     shinyjs::disable("beta_runbtn_cross_bin")
+    # shinyjs::disable("beta.primvar_cross")
+    # shinyjs::disable("beta_covariates_bin")
+    
+    # shinyjs::disable("chooseMethod_taxa")
     shinyjs::disable("taxa_runbtn_bin")
+    # shinyjs::disable("surv3.taxa.method")
     shinyjs::disable("runbtn_CoxT")
+    # shinyjs::disable("surv4.method.select")
     shinyjs::disable("runbtn_model4")
   })
   
@@ -2974,8 +1943,8 @@ server = function(input, output, session) {
         
         incProgress(3/10, message = "Calculating Distance")
         
-        #ds.Ks$res = Ds.Ks.func(infile$rare_biom, infile$qc_biom)
         ds.Ks$res = Ds.Ks.func(infile$rare_biom, infile$qc_biom)
+        
         incProgress(1/10, message = "Transforming Data")
         
         rare.otu.tab <- otu_table(infile$rare_biom)
@@ -3188,6 +2157,219 @@ server = function(input, output, session) {
     shinyjs::enable("runbtn_model4")
   })
   
+  ##########################################
+  ##     Survival Data Analysis           ##
+  ##########################################
+  
+  observeEvent(input$surv.KMrun, {
+    validate(
+      if (input$covariates.surv == "Covariate(s)" & is.null(input$covariatesOptions.surv)) {
+        showNotification("Error: Please select covariate(s) before you click 'Run!' button.",
+                         type = "error")
+      } else {
+        NULL
+      }
+    )
+    
+    shinyjs::disable("surv.KMrun")
+    # shinyjs::disable("chooseAdjustment")
+    # shinyjs::disable("primvar")
+    # shinyjs::disable("chooseMethod")
+    # shinyjs::disable("covariates")
+    # shinyjs::disable("covariatesOptions")
+    # shinyjs::disable("alphaCat1")
+    # shinyjs::disable("alphaCat2")
+    # shinyjs::disable("chooseData")
+    
+    withProgress({
+      
+      #########################################################
+      incProgress(1/10, message = "Applying changes")
+      
+      rename.cats_ref <- input$prim.var.rename1.Surv
+      rename.cats_com <- input$prim.var.rename2.Surv
+      
+      Surv.bin.cat.ref.ori.out <- alpha.bin.cat.ref.ori.func(chooseData$sam.dat, input$primvar.Surv.select)
+      
+      sam_dat0 <- alpha.bin.cat.recode.func(chooseData$sam.dat, input$primvar.Surv.select, Surv.bin.cat.ref.ori.out,
+                                            rename.cats_ref, rename.cats_com)
+      
+      print("here1")
+      
+      sample_here <<- sam_dat0
+      covariates_here <<- input$covariatesOptions.surv
+      
+      sam_dat0 <- sam_no_miss_cov(sam_dat0, input$covariatesOptions.surv)
+      print("here2")
+      print(sam_dat0)
+      
+      # sam_dat0 <- sam.follow.time.func(sam_dat, chooseData$surv.Time.select, chooseData$censor.select, chooseData$follow.time)
+      
+      # if (chooseData$subgroup == "Yes"){
+      #   sam_dat0 <- sam_dat0[ sam_dat0[[chooseData$subgroup.sel]] == chooseData$pick_subgroup ]
+      # }
+      
+      #########################################################
+      incProgress(3/10, message = "Displaying Variables in Use")
+      
+      #num.treat1_size <- surv.num.treat1(sam_dat, input$primvar.Surv.select)
+      #num.treat2_size <- surv.num.treat2(sam_dat, input$primvar.Surv.select)
+      
+      surv.dat0 <- surv.events.dat.func(sam_dat0, 
+                                        input$primvar.Surv.select, 
+                                        chooseData$surv.Time.select, 
+                                        chooseData$censor.select)
+      
+      num.treat1_size <- surv.num.treat1(surv.dat0, "treat")
+      num.treat2_size <- surv.num.treat2(surv.dat0, "treat")
+      
+      num.event <- surv.num.uncen(surv.dat0)
+      num.cen <- surv.num.censr(surv.dat0)
+      
+      output$treatment_size <- renderValueBox({
+        treat.ls <- unique( sam_dat0[[input$primvar.Surv.select]] )
+        
+        valueBox(
+          value = tags$p(paste0(num.treat1_size), style = "font-size: 75%;"),
+          paste("Sample Size (", treat.ls[1],")", sep="" ), icon = icon("user-circle"), color = "red")
+      })
+      
+      output$control_size <- renderValueBox({
+        treat.ls <- unique( sam_dat0[[input$primvar.Surv.select]] )
+        
+        valueBox(
+          value = tags$p(paste0(num.treat2_size), style = "font-size: 75%;"),
+          paste("Sample Size (", treat.ls[2],")", sep="" ), icon = icon("user-circle"), color = "orange")
+      })
+      
+      output$censored_size <- renderValueBox({
+        
+        valueBox(
+          value = tags$p(paste0(num.cen), style = "font-size: 75%;"),
+          "Sample Size (Censored)", icon = icon("user-circle"), color = "yellow")
+      })
+      
+      output$uncensored_size <- renderValueBox({
+        
+        valueBox(
+          value = tags$p(paste0(num.event), style = "font-size: 75%;"),
+          "Sample Size (Event)", icon = icon("user-circle"), color = "teal")
+      })
+      
+      
+      validate(
+        if (num.treat1_size < 2 & num.treat2_size < 2 & num.event < 2 ) {
+          if( num.treat1_size < 2 & num.treat2_size < 2 ){
+            showNotification("Error: Too few sample Treatment size. Select different Treatment variable.",
+                             type = "error")
+          }
+          if( num.event < 2 ){
+            showNotification("Error: Too few sample Event size. Select different Event variable.",
+                             type = "error")
+          }
+        }
+      )
+      
+      #########################################################
+      incProgress(6/10, message = "Calculating")
+      
+      # If Covariates = None, usual ( but if Cox is checked, get cox curve)
+      # If Covariates!= None, get Cox PH
+      
+      #sam_dat <- resue.sam.dat #chooseData$sam_dat
+      
+      if ( input$covariates.surv == "None") {
+        
+        surv.dat <- surv.events.dat.func(sam_dat0, 
+                                         input$primvar.Surv.select, 
+                                         chooseData$surv.Time.select, 
+                                         chooseData$censor.select)
+        
+        if ( input$pick_KM_Cox == "Cox model") {
+          cox.fit <- surv.Cox.fit.func1( surv.dat )
+          
+          output$surv_display_results = renderUI({
+            tagList(
+              box(title = strong( "Survival Curve"), 
+                  align = "center", width = NULL, status = "primary", solidHeader = TRUE,
+                  plotOutput("surv.plot2", height = 400, width = 500)
+              )
+            )
+          })
+          output$surv.plot2 = renderPlot({
+            isolate(surv.Cox.plot.func( cox.fit, surv.dat ))
+          })
+        }
+        else {
+          surv.KM.fit <- surv.KM.fit.func( surv.dat )
+          
+          output$surv_display_results = renderUI({
+            tagList(
+              box(title = strong( "Kaplan-Meier Curve"), 
+                  align = "center", width = NULL, status = "primary", solidHeader = TRUE,
+                  plotOutput("surv.plot3", height = 400, width = 500)
+              )
+            )
+          })
+          output$surv.plot3 = renderPlot({
+            isolate(surv.KM.plot.func( surv.KM.fit, surv.dat, input$sig.test.Surv ))
+          })
+        }
+      }
+      else {
+        
+        surv.dat <- surv.events.dat.func2(sam_dat0, 
+                                          input$primvar.Surv.select, 
+                                          chooseData$surv.Time.select, 
+                                          chooseData$censor.select,
+                                          input$covariatesOptions.surv)
+        
+        cox.model <- surv.Cox.fit.func2( surv.dat, input$covariatesOptions.surv)
+        
+        output$surv_display_results = renderUI({
+          tagList(
+            box(title = strong( "Adjusted Survival Curve"),
+                align = "center", width = NULL, status = "primary", solidHeader = TRUE,
+                plotOutput("surv.plot1", height = 400, width = 500)))
+        })
+        
+        output$surv.plot1 = renderPlot({
+          isolate(surv.Cox.plot.func( cox.model, surv.dat, input$covariatesOptions.surv))
+        })
+      }
+      
+      if( input$pick_KM_Cox == "Cox model"){
+        ref_string = REFERENCE_CHECK(method_name = isolate(input$pick_KM_Cox) )
+        
+      }
+      else{
+        ref_string = REFERENCE_CHECK(method_name = isolate(input$pick_KM_Cox), sig_test = isolate(input$sig.test.Surv) )
+      }
+      
+      if (is.null(ref_string)) {
+        shinyjs::hide("referencesM1")
+      } else {
+        shinyjs::show("referencesM1")
+        output$referencesM1 = renderUI({
+          tagList(
+            box(title = strong("References"), width = NULL, status = "primary", solidHeader = TRUE,
+                HTML(paste(ref_string, collapse="<br/>"))
+            )
+          )
+        })
+      }
+      shinyjs::enable("surv.KMrun")
+      # shinyjs::enable("primvar")
+      # shinyjs::enable("chooseAdjustment")
+      # shinyjs::enable("chooseMethod")
+      # shinyjs::enable("covariates")
+      # shinyjs::enable("covariatesOptions")
+      # shinyjs::enable("alphaCat1")
+      # shinyjs::enable("alphaCat2")
+      # shinyjs::enable("chooseData")
+    })
+    
+  })
   ##########################################
   ## Alpha Cross-Sectional Data Analysis ##
   ##########################################
@@ -3638,45 +2820,217 @@ server = function(input, output, session) {
         taxa_dataBinvar <- taxa.results$bin.var
         taxa_dataTaxa <- taxa.results$taxa
         
-        if (input$chooseMethod_taxa == "Welch t-test" | input$chooseMethod_taxa == "Wilcoxon rank-sum test (default)") {
-          if (input$chooseMethod_taxa == "Welch t-test") {
-            incProgress(5/10, message = "Welch t-test")
-            taxa.t.test.out <- taxa.bin.t.test.united(taxa.results$bin.var, taxa.results$taxa)
-            taxa.t.test.q.out <- bin.q.united.func(taxa.t.test.out, method = "BH")
+        if (input$chooseMethod_taxa == "Welch t-test") {
+          incProgress(5/10, message = "Welch t-test")
+          
+          taxa.t.test.out <- taxa.bin.t.test.united(taxa.results$bin.var, taxa.results$taxa)
+          taxa.t.test.q.out <- bin.q.united.func(taxa.t.test.out, method = "BH")
+          
+          taxa.outputs$DAoutput = taxa.t.test.q.out
+          
+          height = numeric()
+          for (r in 1:6) {
+            row.num <- ceiling(sum(taxa.t.test.q.out[[r]]$Q.value < 0.05)/4)
+            if (row.num > 0) {
+              height[r] <- row.num
+            } else {
+              height[r] <- 1
+            } 
+          }
+          
+          output$taxa_display_results_hmm= renderUI({
+            tagList(
+              tabBox(title = strong("Box Plot", style = "color:black"), width = NULL,
+                     tabPanel("Phylum", align = "center",
+                              plotOutput("box_1", height = height[1]*250, width = 750),
+                     )
+                     ,
+                     tabPanel("Class", align = "center",
+                              plotOutput("box_2", height = height[2]*250, width = 750),
+                     )
+                     ,tabPanel("Order", align = "center",
+                               plotOutput("box_3", height = height[3]*250, width = 750),
+                     )
+                     ,tabPanel("Family", align = "center",
+                               plotOutput("box_4", height = height[4]*250, width = 750),
+                     )
+                     ,tabPanel("Genus", align = "center",
+                               plotOutput("box_5", height = height[5]*250, width = 750),
+                     )
+                     ,tabPanel("Species", align = "center",
+                               plotOutput("box_6", height = height[6]*250, width = 750),
+                     )
+              )
+            )
+          })
+          
+          
+          
+          output$box_1 = renderPlot({ 
+            taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 1, TRUE)  
+          })
+          
+          output$box_2 = renderPlot({ 
+            taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 2, TRUE)  ####all.t.test.united should be used
+          })
+          
+          output$box_3 = renderPlot({ 
+            taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 3, TRUE)  ####all.t.test.united should be used
+          })
+          
+          output$box_4 = renderPlot({ 
+            taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 4, TRUE)  ####all.t.test.united should be used
+          })
+          
+          output$box_5 = renderPlot({ 
+            taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 5, TRUE)  ####all.t.test.united should be used
+          })
+          
+          output$box_6 = renderPlot({ 
+            taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 6, TRUE)  ####all.t.test.united should be used
+          })
+          
+          incProgress(3/10, message = "Displaying Results in progress")
+          
+          dend_result <- taxa.sig.dend(taxa.outputs$DAoutput, chooseData$NAadded$tax.tab, "twopi", include)
+          flow.text <- dend_result$flow.text
+          taxon.tab <- dend_result$taxon.tab
+          ci.tab.all <- dend_result$ci.tab.all
+          
+          if (include == FALSE){
+            taxon.tab <- taxon.tab[!grepl("s_", taxon.tab$Taxon, fixed = TRUE), ]
+          }
+          
+          if ( length(ci.tab.all) > 1 ){
             
-            taxa.outputs$DAoutput = taxa.t.test.q.out
-            
-            nrow = numeric()
-            for (r in 1:6) {
-              row.num <- ceiling(sum(taxa.t.test.q.out[[r]]$Q.value < 0.05)/4)
-              if (row.num > 0) {
-                nrow[r] <- row.num
-              } else {
-                nrow[r] <- 1
-              } 
-            }
-          } else if (input$chooseMethod_taxa == "Wilcoxon rank-sum test (default)") {
-            incProgress(5/10, message = "Wilcoxon rank-sum test")
-            taxa.wilcox.test.out <- taxa.bin.wilcox.test.united(taxa.results$bin.var, taxa.results$taxa)
-            taxa.wilcox.test.q.out <- bin.q.united.func(taxa.wilcox.test.out, method = "BH")
-            taxa.wilcox.test.est.added <- taxa.wilcox.test.est.func(taxa.results$bin.var, taxa.results$taxa, rename.cats_ref, rename.cats_com, taxa.wilcox.test.q.out)
-            
-            taxa.outputs$DAoutput = taxa.wilcox.test.est.added
-            
-            nrow = numeric()
-            for (r in 1:6) {
-              row.num <- ceiling(sum(taxa.outputs$DAoutput[[r]]$Q.value < 0.05)/4)
-              if (row.num > 0) {
-                nrow[r] <- row.num
-              } else {
-                nrow[r] <- 1
+            for( i in 1:nrow(taxon.tab)){
+              if (ci.tab.all[-1][i] < 0){
+                taxon.tab[i,1] <- cell_spec(taxon.tab[i,1], "html", color = "blue")
+                taxon.tab[i,2] <- cell_spec(taxon.tab[i,2], "html", color = "black")
+              }
+              else{
+                taxon.tab[i,1] <- cell_spec(taxon.tab[i,1], "html", color = "red")
+                taxon.tab[i,2] <- cell_spec(taxon.tab[i,2], "html", color = "black")
               }
             }
           }
           
+          N <- dim(taxon.tab)[1]
+          itr <- ceiling(N/5)
+          tab.one   <- data.frame( matrix(ncol=2,nrow=0) )
+          tab.two   <- data.frame( matrix(ncol=2,nrow=0) )
+          tab.three <- data.frame( matrix(ncol=2,nrow=0) )
+          tab.four  <- data.frame( matrix(ncol=2,nrow=0) )
+          tab.five  <- data.frame( matrix(ncol=2,nrow=0) )
           
-          incProgress(3/10, message = "Displaying Results in progress")
-          output$taxa_display_results = renderUI({
+          colnames(tab.one) <- c("ID", "Taxon")
+          colnames(tab.two) <- c("ID", "Taxon")
+          colnames(tab.three) <- c("ID", "Taxon")
+          colnames(tab.four) <- c("ID", "Taxon")
+          colnames(tab.five) <- c("ID", "Taxon")
+          
+          if ( dim(taxon.tab)[1] > 0 ) {
+            i = 1
+            j = 1
+            N.rmd <- N %% 5
+            N.fix <- N + 5 - N.rmd
+            while ( i <= itr) {
+              tab.one  [i,] <- taxon.tab[j,]
+              tab.two  [i,] <- taxon.tab[j+1,]
+              tab.three[i,] <- taxon.tab[j+2,]
+              tab.four [i,] <- taxon.tab[j+3,]
+              tab.five [i,] <- taxon.tab[j+4,]
+              i <- i + 1  
+              j <- j + 5
+            }
+            row.names(tab.one) <- NULL
+            row.names(tab.two) <- NULL
+            row.names(tab.three) <- NULL
+            row.names(tab.four) <- NULL
+            row.names(tab.five) <- NULL
+            
+            tab.one <- na.omit(tab.one)
+            tab.two <- na.omit(tab.two)
+            tab.three <- na.omit(tab.three)
+            tab.four <- na.omit(tab.four)
+            tab.five <- na.omit(tab.five)
+          }
+          
+          
+          output$vis_rank = renderUI({
+            
+            box(title = strong("Dendrogram"), width = NULL, solidHeader = TRUE, status = "primary", 
+                
+                fluidRow(width = 600, align = "center", 
+                         div(style = "display: inline-block:vertical-align:top;", grVizOutput("first_taxa_dend", width = "98%", height = 1000))),
+                br(),
+                
+                fluidRow(width = NULL, align = "center",
+                         tagList(
+                           div(style="display: inline-block;vertical-align:top;", htmlOutput("hmm_T1") ),
+                           div(style="display: inline-block;vertical-align:top;", htmlOutput("hmm_T2") ),
+                           div(style="display: inline-block;vertical-align:top;", htmlOutput("hmm_T3") ),
+                           div(style="display: inline-block;vertical-align:top;", htmlOutput("hmm_T4") ),
+                           div(style="display: inline-block;vertical-align:top;", htmlOutput("hmm_T5") )
+                         )
+                )
+            )
+          })
+          
+          output$first_taxa_dend= renderGrViz({
+            taxa.sig.dend(taxa.outputs$DAoutput, chooseData$NAadded$tax.tab, "twopi", include)$flow.text
+          })
+          
+          output$hmm_T1 <- renderText({
+            sig.tab1 <- kable(tab.one, 'html', booktabs =TRUE, escape = FALSE) %>%
+              kable_styling(latex_options = c('hold_position'))
+            sig.tab1
+          })
+          output$hmm_T2 <- renderText({
+            
+            sig.tab2 <- kable(tab.two, 'html', booktabs =TRUE, escape = FALSE) %>%
+              kable_styling(latex_options = c('hold_position'))
+            sig.tab2
+          })
+          output$hmm_T3 <- renderText({
+            
+            sig.tab3 <- kable(tab.three, 'html', booktabs =TRUE, escape = FALSE) %>%
+              kable_styling(latex_options = c('hold_position'))
+            sig.tab3
+          })
+          output$hmm_T4 <- renderText({
+            
+            sig.tab4 <- kable(tab.four, 'html', booktabs =TRUE, escape = FALSE) %>%
+              kable_styling(latex_options = c('hold_position'))
+            sig.tab4
+          })
+          output$hmm_T5 <- renderText({
+            
+            sig.tab5 <- kable(tab.five, 'html', booktabs =TRUE, escape = FALSE) %>%
+              kable_styling(latex_options = c('hold_position'))
+            sig.tab5
+          })
+          
+          
+        }else if (input$chooseMethod_taxa == "Wilcoxon rank-sum test (default)") {
+          incProgress(5/10, message = "Wilcoxon rank-sum test")
+          taxa.wilcox.test.out <- taxa.bin.wilcox.test.united(taxa.results$bin.var, taxa.results$taxa)
+          taxa.wilcox.test.q.out <- bin.q.united.func(taxa.wilcox.test.out, method = "BH")
+          taxa.wilcox.test.est.added <- taxa.wilcox.test.est.func(taxa.results$bin.var, taxa.results$taxa, rename.cats_ref, rename.cats_com, taxa.wilcox.test.q.out)
+          
+          taxa.outputs$DAoutput = taxa.wilcox.test.est.added
+          
+          nrow <- numeric()
+          for (r in 1:6) {
+            row.num <- ceiling(sum(taxa.outputs$DAoutput[[r]]$Q.value < 0.05)/4)
+            if (row.num > 0) {
+              nrow[r] <- row.num
+            } else {
+              nrow[r] <- 1
+            }
+          }
+          
+          output$taxa_display_results_hmm= renderUI({
             tagList(
               tabBox(title = strong("Box Plot", style = "color:black"), width = NULL,
                      tabPanel("Phylum", align = "center",
@@ -3726,22 +3080,21 @@ server = function(input, output, session) {
             taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 6, TRUE)  ####all.t.test.united should be used
           })
           
+          incProgress(3/10, message = "Displaying Results in progress")
           
-          taxa.sig <- taxa.sig.dend(taxa.outputs$DAoutput, chooseData$NAadded$tax.tab, "twopi", include)
-          
-          
-          flow.text <- taxa.sig$flow.text
-          taxon.tab <- taxa.sig$taxon.tab
-          ci.tab.all <- taxa.sig$ci.tab.all
+          dend_result <- taxa.sig.dend(taxa.outputs$DAoutput, chooseData$NAadded$tax.tab, "twopi", include)
+          flow.text <- dend_result$flow.text
+          taxon.tab <- dend_result$taxon.tab
+          ci.tab.all <- dend_result$ci.tab.all
           
           if ( include == FALSE){
-            taxon.tab <- taxon.tab[ !grepl("s_", taxon.tab$Taxon, fixed = TRUE), ]
+            taxon.tab <- taxon.tab[!grepl("s_", taxon.tab$Taxon, fixed = TRUE), ]
           }
           
           if ( length(ci.tab.all) > 1 ){
             
             for( i in 1:nrow(taxon.tab)){
-              if ( ci.tab.all[-1][i] < 0){
+              if (ci.tab.all[-1][i] < 0){
                 taxon.tab[i,1] <- cell_spec(taxon.tab[i,1], "html", color = "blue")
                 taxon.tab[i,2] <- cell_spec(taxon.tab[i,2], "html", color = "black")
               }
@@ -3796,67 +3149,62 @@ server = function(input, output, session) {
           }
           
           
-          output$taxa_display_dend = renderUI({
+          output$vis_rank = renderUI({
             
-            box(title = strong("Dendrogram"), width = 12, status = "primary", solidHeader = TRUE,
+            box(title = strong("Dendrogram"), width = NULL, solidHeader = TRUE, status = "primary", 
                 
-                fluidRow(width = 12, align = "center",
-                         div(style = "display: inline-block:vertical-align:top;", grVizOutput("dendrogram", height = 1000, width = 1000)) ),
+                fluidRow(width = 600, align = "center", 
+                         div(style = "display: inline-block:vertical-align:top;", grVizOutput("boom_taxa", width = "98%", height = 1000))),
                 br(),
-                fluidRow(width = 12, align = "center",
+                
+                fluidRow(width = NULL, align = "center",
                          tagList(
-                           div(style="display: inline-block;vertical-align:top;", htmlOutput("M2sig_1_taxonlist") ),
-                           div(style="display: inline-block;vertical-align:top;", htmlOutput("M2sig_2_taxonlist") ),
-                           div(style="display: inline-block;vertical-align:top;", htmlOutput("M2sig_3_taxonlist") ),
-                           div(style="display: inline-block;vertical-align:top;", htmlOutput("M2sig_4_taxonlist") ),
-                           div(style="display: inline-block;vertical-align:top;", htmlOutput("M2sig_5_taxonlist") )
+                           div(style="display: inline-block;vertical-align:top;", htmlOutput("hmm_T1") ),
+                           div(style="display: inline-block;vertical-align:top;", htmlOutput("hmm_T2") ),
+                           div(style="display: inline-block;vertical-align:top;", htmlOutput("hmm_T3") ),
+                           div(style="display: inline-block;vertical-align:top;", htmlOutput("hmm_T4") ),
+                           div(style="display: inline-block;vertical-align:top;", htmlOutput("hmm_T5") )
                          )
                 )
             )
           })
           
-          output$dendrogram = renderGrViz({
-            flow.text
+          output$boom_taxa= renderGrViz({
+            taxa.sig.dend(taxa.outputs$DAoutput, chooseData$NAadded$tax.tab, "twopi", include)$flow.text
           })
-          output$M2sig_1_taxonlist <- renderText({
+          
+          output$hmm_T1 <- renderText({
             sig.tab1 <- kable(tab.one, 'html', booktabs =TRUE, escape = FALSE) %>%
               kable_styling(latex_options = c('hold_position'))
             sig.tab1
           })
-          output$M2sig_2_taxonlist <- renderText({
+          output$hmm_T2 <- renderText({
             
             sig.tab2 <- kable(tab.two, 'html', booktabs =TRUE, escape = FALSE) %>%
               kable_styling(latex_options = c('hold_position'))
             sig.tab2
           })
-          output$M2sig_3_taxonlist <- renderText({
+          output$hmm_T3 <- renderText({
             
             sig.tab3 <- kable(tab.three, 'html', booktabs =TRUE, escape = FALSE) %>%
               kable_styling(latex_options = c('hold_position'))
             sig.tab3
           })
-          output$M2sig_4_taxonlist <- renderText({
+          output$hmm_T4 <- renderText({
             
             sig.tab4 <- kable(tab.four, 'html', booktabs =TRUE, escape = FALSE) %>%
               kable_styling(latex_options = c('hold_position'))
             sig.tab4
           })
-          output$M2sig_5_taxonlist <- renderText({
+          output$hmm_T5 <- renderText({
             
             sig.tab5 <- kable(tab.five, 'html', booktabs =TRUE, escape = FALSE) %>%
               kable_styling(latex_options = c('hold_position'))
             sig.tab5
           })
           
-          
-          # 
-          # output$M2sig_taxonlist <- renderText({
-          #   #sig.taxon.tab
-          #   kable(taxon.tab, 'html', booktabs =TRUE, escape = FALSE) %>%
-          #     kable_styling(latex_options = c('hold_position')) %>% 
-          #     scroll_box(width = "338px", height = "1000px")
-          # })
-        } 
+        }
+        
         
         else if (input$chooseMethod_taxa == "Linear regression"| input$chooseMethod_taxa == "Negative binomial regression" | input$chooseMethod_taxa == "Beta regression") {
           if (input$covariates_taxa == "None") {
@@ -3912,7 +3260,7 @@ server = function(input, output, session) {
             }
           }
           
-          forestplot.data <- taxa.forest.plot.pages1(taxa.outputs$DAoutput, chooseData$taxa.names.out, report.type = "Est", species.include = include)
+          forestplot.data <<- taxa.forest.plot.pages1(taxa.outputs$DAoutput, chooseData$taxa.names.out, report.type = "Est", species.include = include)
           
           if (any(!is.na(unlist(chooseData$taxa.names.out$duplicates)))) {
             duplicate.taxa <- sapply(strsplit(unlist(chooseData$taxa.names.out$duplicates), " :"),  "[", 1)
@@ -3923,7 +3271,7 @@ server = function(input, output, session) {
           }
           
           if (duplicate.texts>0) {
-            output$taxa_display_results = renderUI({
+            output$taxa_display_results_hmm = renderUI({
               tagList(
                 do.call(tabsetPanel, lapply(1:nrow, function(i) {
                   tabPanel(title = paste0("Page ", i), align = "center",
@@ -3955,11 +3303,16 @@ server = function(input, output, session) {
             })
           })
           
-          taxa.sig <- taxa.sig.dend(taxa.outputs$DAoutput, chooseData$NAadded$tax.tab, "twopi", include)
+          result_1 <<- taxa.outputs$DAoutput
+          result_2 <<- chooseData$NAadded$tax.tab
+          result_3 <<- include 
           
-          flow.text <- taxa.sig$flow.text
-          taxon.tab <- taxa.sig$taxon.tab
-          ci.tab.all <- taxa.sig$ci.tab.all
+          first.taxa.sig <- taxa.sig.dend(taxa.outputs$DAoutput, chooseData$NAadded$tax.tab, "twopi", include)
+          
+          flow.text <- first.taxa.sig$flow.text
+          taxon.tab <- first.taxa.sig$taxon.tab
+          ci.tab.all <- first.taxa.sig$ci.tab.all
+          
           
           
           if ( include == FALSE){
@@ -4022,54 +3375,55 @@ server = function(input, output, session) {
             tab.five <- na.omit(tab.five)
           }
           
-          output$taxa_display_dend = renderUI({
+          output$vis_rank = renderUI({
             
-            box(title = strong("Dendrogram"), width = 12, status = "primary", solidHeader = TRUE,
+            box(title = strong("Dendrogram"), width = NULL, solidHeader = TRUE, status = "primary", 
                 
-                fluidRow(width = 12, align = "center",
-                         div(style = "display: inline-block:vertical-align:top;", grVizOutput("dendrogram", height = 1000, width = 1000)) ),
+                fluidRow(width = NULL, align = "center",
+                         div(style = "display: inline-block:vertical-align:top;", grVizOutput("dend_taxo_rank", width = "98%", height = 1000))),
                 br(),
-                fluidRow(width = 12, align = "center",
+                
+                fluidRow(width = NULL, align = "center",
                          tagList(
-                           div(style="display: inline-block;vertical-align:top;", htmlOutput("M2sig_1_taxonlist") ),
-                           div(style="display: inline-block;vertical-align:top;", htmlOutput("M2sig_2_taxonlist") ),
-                           div(style="display: inline-block;vertical-align:top;", htmlOutput("M2sig_3_taxonlist") ),
-                           div(style="display: inline-block;vertical-align:top;", htmlOutput("M2sig_4_taxonlist") ),
-                           div(style="display: inline-block;vertical-align:top;", htmlOutput("M2sig_5_taxonlist") )
+                           div(style="display: inline-block;vertical-align:top;", htmlOutput("tax_r1") ),
+                           div(style="display: inline-block;vertical-align:top;", htmlOutput("tax_r2") ),
+                           div(style="display: inline-block;vertical-align:top;", htmlOutput("tax_r3") ),
+                           div(style="display: inline-block;vertical-align:top;", htmlOutput("tax_r4") ),
+                           div(style="display: inline-block;vertical-align:top;", htmlOutput("tax_r5") )
                          )
                 )
             )
           })
           
-          output$dendrogram = renderGrViz({
-            flow.text
+          output$dend_taxo_rank = renderGrViz({
+            taxa.sig.dend(taxa.outputs$DAoutput, chooseData$NAadded$tax.tab, "twopi", include)$flow.text
           })
           
-          output$M2sig_1_taxonlist <- renderText({
+          output$tax_r1 <- renderText({
             sig.tab1 <- kable(tab.one, 'html', booktabs =TRUE, escape = FALSE) %>%
               kable_styling(latex_options = c('hold_position'))
             sig.tab1
           })
           
-          output$M2sig_2_taxonlist <- renderText({
+          output$tax_r2 <- renderText({
             sig.tab2 <- kable(tab.two, 'html', booktabs =TRUE, escape = FALSE) %>%
               kable_styling(latex_options = c('hold_position'))
             sig.tab2
           })
           
-          output$M2sig_3_taxonlist <- renderText({
+          output$tax_r3 <- renderText({
             sig.tab3 <- kable(tab.three, 'html', booktabs =TRUE, escape = FALSE) %>%
               kable_styling(latex_options = c('hold_position'))
             sig.tab3
           })
           
-          output$M2sig_4_taxonlist <- renderText({
+          output$tax_r4 <- renderText({
             sig.tab4 <- kable(tab.four, 'html', booktabs =TRUE, escape = FALSE) %>%
               kable_styling(latex_options = c('hold_position'))
             sig.tab4
           })
           
-          output$M2sig_5_taxonlist <- renderText({
+          output$tax_r5 <- renderText({
             sig.tab5 <- kable(tab.five, 'html', booktabs =TRUE, escape = FALSE) %>%
               kable_styling(latex_options = c('hold_position'))
             sig.tab5
@@ -4187,6 +3541,831 @@ server = function(input, output, session) {
       })
   }, ignoreNULL = TRUE, ignoreInit = TRUE)
   
-}
-
+  ##########################################
+  ## Alpha Cox Proportion Hazard Analysis ##
+  ##########################################
+  observeEvent(input$runbtn_CoxA, {
+    validate(
+      if (input$covariatesCoxA == "Covariate(s)" & is.null(input$covariatesOptionsCoxA)) {
+        showNotification("Error: Please select covariate(s) before you click 'Run!' button.",
+                         type = "error")
+      } else {
+        NULL
+      }
+    )
+    
+    shinyjs::disable("runbtn_CoxA")
+    # shinyjs::disable("chooseAdjustment")
+    # shinyjs::disable("primvar")
+    # shinyjs::disable("chooseMethod")
+    # shinyjs::disable("covariates")
+    # shinyjs::disable("covariatesOptions")
+    # shinyjs::disable("alphaCat1")
+    # shinyjs::disable("alphaCat2")
+    # shinyjs::disable("chooseData")
+    
+    withProgress(
+      
+      message = 'Calculation in progress',
+      detail = 'This may take a while...', value = 0, {
+        
+        ##############################################
+        incProgress(1/10, message = "Calculating")
+        
+        #chooseData$alpha.div = chooseData$alpha.div.rare
+        
+        ##############################################
+        incProgress(5/10, message = "Plotting")
+        
+        new_data <- data.union.func(chooseData$sam.dat, chooseData$alpha.div)
+        
+        new_sam.dat   <- new_data$new_sam.dat
+        new_alpha.div <- new_data$new_alpha.div
+        
+        
+        if (input$subgroup.a== "Yes"){
+          ind <- new_sam.dat [[input$subgroup.sel.a]] == input$pick_subgroup.a
+          new_sam.dat  <- new_sam.dat [ind, ]
+          new_alpha.div <- new_alpha.div [ind,]
+        }
+        
+        new_alpha.div <- alpha_no_miss_cov(new_sam.dat,  new_alpha.div, input$covariatesOptionsCoxA)
+        new_sam.dat <- sam_no_miss_cov(new_sam.dat, input$covariatesOptionsCoxA)
+        
+        new_surv.dat <- alpha.surv.events.dat.func(new_sam.dat, chooseData$surv.Time.select, chooseData$censor.select)
+        
+        if (input$covariatesCoxA =="None") {
+          alpha.cox.out <- alpha.cox.test(new_surv.dat, new_alpha.div)
+        }
+        else {
+          cov.dat <- subset(new_sam.dat, select = input$covariatesOptionsCoxA)
+          alpha.cox.out <- alpha.cox.test(new_surv.dat, new_alpha.div, cov.dat)
+        }
+        
+        multi.test <- FALSE
+        alphaS.down.results$alpha.cox.out = alpha.cox.out
+        
+        # if (input$chooseAdjustment3A == "Yes") {
+        #   multi.test <- TRUE
+        #   alphaS.down.results$alpha.cox.out = q.func(alpha.cox.out, method = "BH")
+        # }
+        # else if (input$chooseAdjustment3A == "No (Default)") {
+        #   multi.test <- FALSE
+        #   alphaS.down.results$alpha.cox.out = alpha.cox.out
+        # }
+        
+        alphaS.down.results$alpha.cox.forest.plot <- alpha.cox.forest.plot(alphaS.down.results$alpha.cox.out, multi.test = multi.test)
+        
+        output$alpha_surv_display_resultsCoxA = renderUI({
+          tagList(
+            box(title = strong( "Graphs for Alpha Diversity"),
+                align = "center", width = NULL, status = "primary", solidHeader = TRUE,
+                plotOutput("surv.plot.coxA", height = 400, width = 500)))
+        })
+        
+        output$surv.plot.coxA = renderPlot({
+          alphaS.down.results$alpha.cox.forest.plot
+        })
+        
+        output$alpha_surv_downloadTable = renderUI({
+          tagList(
+            p(" ", style = "margin-top: 20px;"),
+            box(title = strong("Download Output Table"), width = NULL, status = "primary", solidHeader = TRUE,
+                p("You can download data analysis outputs.",
+                  style = "font-size:11pt"), 
+                h5("Data Analysis Outputs"),
+                downloadButton("downloadTabl_aS1", "Download", width = '50%', style = "background-color: red3"), br(),
+                h5("Data Analysis Plot Image"),
+                downloadButton("downloadTabl_aS2", "Download", width = '50%', style = "background-color: red3")
+            )
+          )
+        })
+        output$downloadTabl_aS1 <- downloadHandler(
+          filename = function() {
+            paste("Alpha.Survival.Table.csv")
+          },
+          content = function(file) {
+            write.csv(alphaS.down.results$alpha.cox.out, file)
+          }
+        )
+        output$downloadTabl_aS2 <- downloadHandler(
           
+          filename = function() {
+            paste("Alpha.Survival.Output.png")
+          },
+          content = function(file) {
+            #write.csv(alphaS.down.results$alpha.cox.forest.plot, file)
+            png(file=file,
+                width=650, height=400)
+            print( alphaS.down.results$alpha.cox.forest.plot )
+            dev.off()
+          }
+        )
+        
+        ref_string = REFERENCE_CHECK(method_name = isolate(input$surv3.alpha.method), FDR = "No (Default)")
+        
+        if (is.null(ref_string)) {
+          shinyjs::hide("referencesM3.alpha")
+        } else {
+          shinyjs::show("referencesM3.alpha")
+          output$referencesM3.alpha = renderUI({
+            tagList(
+              box(title = strong("References"), width = NULL, status = "primary", solidHeader = TRUE,
+                  HTML(paste(ref_string, collapse="<br/>"))
+              )
+            )
+          })
+        }
+      }
+    )
+    shinyjs::enable("runbtn_CoxA")
+  })
+  
+  ##########################################
+  ## Beta Cox Proportion Hazard Analysis ##
+  ##########################################
+  observeEvent(input$runbtn_CoxB, {
+    print("hello come")
+    validate(
+      if (input$covariatesCoxB == "Covariate(s)" & is.null(input$covariatesOptionsCoxB)) {
+        showNotification("Error: Please select covariate(s) before you click 'Run!' button.",
+                         type = "error")
+      } else {
+        NULL
+      }
+    )
+    shinyjs::disable("runbtn_CoxB")
+    
+    
+    withProgress(
+      
+      message = 'Calculation in progress',
+      detail = 'This may take a while...', value = 0, {
+        
+        ##############################################
+        
+        incProgress(1/10, message = "Calculating")
+        
+        betaS.primvar_time = chooseData$surv.Time.select
+        betaS.primvar_cross  = chooseData$censor.select
+        
+        beta.bin.cat.ref.ori.out <- beta.bin.cat.ref.ori.func(chooseData$sam.dat, betaS.primvar_cross)
+        
+        rename.catsbin_ref = beta.bin.cat.ref.ori.out[1]
+        rename.catsbin_com = beta.bin.cat.ref.ori.out[2]
+        
+        beta.sam_dat.bin <- beta.bin.cat.recode.func(chooseData$sam.dat, betaS.primvar_cross,
+                                                     beta.bin.cat.ref.ori.out,
+                                                     rename.catsbin_ref, rename.catsbin_com)
+        
+        beta.sam_dat.bin <- sam_no_miss_cov(beta.sam_dat.bin, input$covariatesOptionsCoxB)
+        
+        ds.Ks.res <- ds.Ks$res
+        ds.Ks.res <- beta_no_miss_cov(beta.sam_dat.bin, ds.Ks.res, input$covariatesOptionsCoxB)
+        
+        if (input$subgroup.b == "Yes"){
+          ind.sub <- beta.sam_dat.bin [[input$subgroup.sel.b]] == input$pick_subgroup.b
+          beta.sam_dat.bin  <- beta.sam_dat.bin [ind.sub, ]
+        }
+        
+        
+        for(i in 1:2){
+          for(j in 1:length(ds.Ks$res[[i]])) {
+            ind <- rownames(ds.Ks$res[[i]][[j]]) %in% rownames(beta.sam_dat.bin)
+            ds.Ks.res[[i]][[j]] <- ds.Ks$res[[i]][[j]][ind,ind]
+          }
+        }
+        
+        if (input$covariatesCoxB == "None") {
+          betaS.bin.out <- betaS.bin.cat.ref.func(betaS.primvar_cross, betaS.primvar_time,
+                                                  rename.catsbin_ref, rename.catsbin_com,
+                                                  beta.sam_dat.bin, Ds.Ks = ds.Ks.res)
+          betaS.data.results$data.q.out <- betaS.bin.out
+        } 
+        
+        else if (input$covariatesCoxB == "Covariate(s)") {
+          if (is.null(input$covariatesOptionsCoxB)) {
+            betaS.bin.out <- betaS.bin.cat.ref.func(betaS.primvar_cross, betaS.primvar_time,
+                                                    rename.catsbin_ref, rename.catsbin_com,
+                                                    beta.sam_dat.bin, Ds.Ks = ds.Ks.res)
+            betaS.data.results$data.q.out <- betaS.bin.out
+          } 
+          else {
+            betaS.bin.cov.out <- betaS.bin.cov.cat.ref.func(betaS.primvar_cross, betaS.primvar_time,
+                                                            rename.catsbin_ref, rename.catsbin_com,
+                                                            input$covariatesOptionsCoxB, beta.sam_dat.bin,
+                                                            Ds.Ks = ds.Ks.res)
+            betaS.data.results$data.q.out <- betaS.bin.cov.out
+          }
+        }
+        
+        if (isolate(input$covariatesCoxB) == "None") {
+          
+          betaS.down.results$CS = mirkatS.bin(betaS.data.results$data.q.out)
+          betaS.plot.info <- mirkatS.bin.plot1(betaS.down.results$CS, betaS.data.results$data.q.out)
+          
+          output$m3_beta_2d = renderPlot({
+            isolate(try(mirkatS.bin.plot2(betaS.down.results$CS, betaS.data.results$data.q.out, betaS.plot.info$mod, betaS.plot.info$sub.tit), silent = TRUE))
+          })
+        } 
+        
+        else if (isolate(input$covariatesCoxB) == "Covariate(s)") {
+          
+          betaS.down.results$CS = mirkatS.bin.cov(betaS.data.results$data.q.out)
+          
+          betaS.plot.info <- mirkatS.bin.plot1(betaS.down.results$CS, betaS.data.results$data.q.out)
+          
+          output$m3_beta_2d = renderPlot({
+            isolate(try( mirkatS.bin.plot2(betaS.down.results$CS, betaS.data.results$data.q.out, betaS.plot.info$mod, betaS.plot.info$sub.tit), silent = TRUE))
+          })
+        }
+        
+        betaS.data.results$betaS.plot.info <- isolate(betaS.plot.info)
+        
+        # output$betaS_display_results_cross = renderUI({
+        #   tagList(
+        #     tabPanel(title = strong("Graphs for Beta Diversity"), align = "center",
+        #              tabsetPanel(id = "m3betaTabs",
+        #                          tabPanel(title = "2D PCoA", align = "center",
+        #                                   plotOutput("m3_beta_2d", height = 850, width = 500)))
+        #     )
+        #   )
+        # })
+        
+        output$betaS_display_results_cross = renderUI({
+          tagList(
+            box(title = strong("Graphs for Beta Diversity"), 
+                align = "center", width = NULL, status = "primary", solidHeader = TRUE,
+                plotOutput("m3_beta_2d", height = 850, width = 500)
+            )
+          )
+        })
+        
+        beta_ind <- c("Jaccard", "Bray-Curtis", "U.UniFrac", "G.UniFrac", "W.UniFrac")
+        
+        output$beta_surv_downloadTable = renderUI({
+          tagList(
+            p(" ", style = "margin-top: 20px;"),
+            box(title = strong("Download Output Table"), width = NULL, status = "primary", solidHeader = TRUE,
+                p("You can download the summary statistics and data analysis outputs.",
+                  style = "font-size:11pt"), 
+                h5("Data Analysis Outputs"),
+                downloadButton("downloadTabl_bS1", "Download", width = '50%', style = "background-color: red3"), br(),
+                h5("Data Analysis Plot Image"),
+                downloadButton("downloadTabl_bS2", "Download", width = '50%', style = "background-color: red3")
+            )
+          )
+        })
+        
+        output$downloadTabl_bS1 <- downloadHandler(
+          filename = function() {
+            paste("Beta.Survival.Table.csv")
+          },
+          content = function(file) {
+            out_temp = as.data.frame(unlist(betaS.down.results$CS))
+            rownames(out_temp) = c("Jaccard","Bray.Curtis","U.UniFrac","G.UniFrac","W.UniFrac", "OMiRKAT-S_p")
+            colnames(out_temp) = "p-value"
+            betaS.down.results$CS = out_temp
+            #write.table(betaS.down.results$CS, file, sep="\t")
+            write.csv(betaS.down.results$CS, file)
+          }
+        )
+        output$downloadTabl_bS2 <- downloadHandler(
+          filename = function() {
+            paste("Beta.Survival.Output.png")
+          },
+          content = function(file) {
+            png(file=file,
+                width=1050, height=950)
+            print( mirkatS.bin.plot2(betaS.down.results$CS, betaS.data.results$data.q.out, betaS.plot.info$mod, betaS.plot.info$sub.tit) )
+            dev.off()
+          }
+        )
+        ref_string = REFERENCE_CHECK(method_name = isolate(input$surv3.beta.method), FDR = "No")
+        if (is.null(ref_string)) {
+          shinyjs::hide("referencesM3.beta")
+        } 
+        else {
+          shinyjs::show("referencesM3.beta")
+          output$referencesM3.beta = renderUI({
+            tagList(
+              box(title = strong("References"), width = NULL, status = "primary", solidHeader = TRUE,
+                  HTML(paste(ref_string, collapse="<br/>"))
+              )
+            )
+          })
+        }
+      }
+    )
+    
+    shinyjs::enable("runbtn_CoxB")
+    
+  })
+  ##########################################
+  ## Taxa Cox Proportion Hazard Analysis ###
+  ##########################################
+  observeEvent(input$runbtn_CoxT, {
+    validate(
+      if (input$covariatesCoxTaxa == "Covariate(s)" & is.null(input$covariatesOptionsCoxT)) {
+        showNotification("Error: Please select covariate(s) before you click 'Run!' button.",
+                         type = "error")
+      } else {
+        NULL
+      }
+    )
+    
+    #shinyjs::disable("runbtn_CoxT")
+    
+    taxa.sam.dat <- chooseData$sam.dat[match(rownames(chooseData$taxa.out$clr$phylum),rownames(chooseData$sam.dat)),]
+    taxa.out.surv <- chooseData$taxa.out[[taxa.types$dataType_Surv]]
+    taxa.out.surv <- taxa_no_miss_cov_ind(taxa.sam.dat, taxa.out.surv, input$covariatesOptionsCoxT)
+    
+    taxa.names.out.surv <- chooseData$taxa.names.out
+    
+    if (input$subgroup.t== "Yes"){
+      ind.sub <- taxa.sam.dat[[input$subgroup.sel.t]] == input$pick_subgroup.t
+      taxa.sam.dat <- taxa.sam.dat[-ind.sub,]  
+      taxa.out.surv <- lapply(taxa.out.surv, function(x){
+        return(x[-ind.sub,])})
+    }
+    
+    validate(
+      if (sum(taxa.sam.dat[,chooseData$censor.select], na.rm = T) <= 0) {
+        showNotification("Error: No Events in Data",
+                         type = "error")
+      } else {
+        NULL
+      }
+    )
+    
+    #shinyjs::disable("runbtn_CoxT")
+    
+    withProgress(
+      
+      message = 'Calculation in progress',
+      detail = 'This may take a while...', value = 0, {
+        
+        ##############################################
+        incProgress(1/10, message = "Calculating")
+        
+        #chooseData$alpha.div = chooseData$alpha.div.rare
+        
+        ##############################################
+        incProgress(5/10, message = "Plotting")
+        
+        if (input$include_species_model3 == "Phylum - Species") {
+          include = TRUE
+        } else {
+          include = FALSE
+        }
+        
+        incProgress(1/10, message = "Examining Data in progress")
+        
+        survtime <- taxa.sam.dat[,chooseData$surv.Time.select]
+        status <- taxa.sam.dat[,chooseData$censor.select]
+        
+        if (input$covariatesCoxTaxa =="None") {
+          taxa.cox.out <<- taxa.cox.test(survtime, status, taxa.out.surv)
+        }
+        else {
+          taxa.cox.out <<- taxa.cox.test(survtime, status, taxa.out.surv, cov.dat = taxa.sam.dat[,input$covariatesOptionsCoxT])
+        }
+        
+        nrow <- surv.taxa.forest.plot.pages(taxa.cox.out, include, mult.test.cor = "TRUE")
+        
+        forestplot.data <<- surv.taxa.forest.plot.pages1(taxa.cox.out, taxa.names.out.surv, report.type = "HR", species.include = include, mult.test.cor = TRUE)
+        
+        result <<- taxa.cox.out 
+        height_forest <- c() 
+        
+        for (j in 1:nrow){
+          out <- forestplot.data$all.text.tab[[j]]
+          sum.sig.by.rank <- nrow(out)-1
+          
+          if(sum.sig.by.rank == 0){height_forest[j] <- 200} else if (sum.sig.by.rank ==1){
+            height_forest[j] <- 150
+          } else if (sum.sig.by.rank <6 & sum.sig.by.rank >1){
+            height_forest[j] <- 300
+          }else if (sum.sig.by.rank <= 20 &sum.sig.by.rank >=6){
+            height_forest[j] <- 500
+          } else {height_forest[j] <-  800}
+        }
+        
+        
+        if (any(!is.na(unlist(taxa.names.out.surv$duplicates)))) {
+          duplicate.taxa <- sapply(strsplit(unlist(taxa.names.out.surv$duplicates), " :"),  "[", 1)
+          taxon.inplot <- unlist(lapply(forestplot.data$all.text.tab, `[`, i =, j = 3))
+          duplicate.texts <- sum(duplicate.taxa %in% taxon.inplot)
+        } else {
+          duplicate.texts <- 0
+        }
+        
+        if (duplicate.texts > 0) {
+          output$surv_taxa_results = renderUI({
+            tagList(
+              do.call(tabsetPanel, lapply(1:nrow, function(i) {
+                tabPanel(title = paste0("Page ", i), align = "center",
+                         plotOutput(paste0("forest_Surv", i), height = height_forest[i], width = 750),
+                         plotOutput(paste0("duplicates_surv", i), height = 11.5*duplicate.texts+10, width = 750))
+              })) 
+            )
+          })
+        } else {
+          output$surv_taxa_results= renderUI({
+            tagList(
+              do.call(tabsetPanel, lapply(1:nrow, function(i) {
+                tabPanel(title = paste0("Page ", i), align = "center",
+                         plotOutput(paste0("forest_Surv", i), height = height_forest, width = 900))
+              })) 
+            )
+          })
+        }
+        
+        lapply(1:nrow, function(j) {
+          output[[paste0("forest_Surv", j)]] <- renderPlot({
+            taxa.surv.forest.plot.pages2(page.taxa.q.out = forestplot.data, page = j)
+          })
+        })
+        
+        lapply(1:nrow, function(j) {
+          output[[paste0("duplicates_surv", j)]] <- renderPlot({
+            duplicate.list(duplicate.taxa, taxon.inplot, chooseData$taxa.names.out$duplicates)
+          })
+        })
+        
+        taxa.sig <- taxa.sig.dend(taxa.cox.out, chooseData$NAadded$tax.tab, "twopi", include)
+        
+        taxon.tab <- taxa.sig$taxon.tab
+        ci.tab.all <- taxa.sig$ci.tab.all
+        
+        if ( include == FALSE){
+          taxon.tab <- taxon.tab[ !grepl("s_", taxon.tab$Taxon, fixed = TRUE), ]
+        }
+        
+        if ( length(ci.tab.all) > 1 ){
+          
+          for( i in 1:nrow(taxon.tab)){
+            if ( ci.tab.all[-1][i] < 0){
+              taxon.tab[i,1] <- cell_spec(taxon.tab[i,1], "html", color = "blue")
+              taxon.tab[i,2] <- cell_spec(taxon.tab[i,2], "html", color = "black")
+            }
+            else{
+              taxon.tab[i,1] <- cell_spec(taxon.tab[i,1], "html", color = "red")
+              taxon.tab[i,2] <- cell_spec(taxon.tab[i,2], "html", color = "black")
+            }
+          }
+        }
+        
+        N <- dim(taxon.tab)[1]
+        itr <- ceiling(N/5)
+        tab.one   <- data.frame( matrix(ncol=2,nrow=0) )
+        tab.two   <- data.frame( matrix(ncol=2,nrow=0) )
+        tab.three <- data.frame( matrix(ncol=2,nrow=0) )
+        tab.four  <- data.frame( matrix(ncol=2,nrow=0) )
+        tab.five  <- data.frame( matrix(ncol=2,nrow=0) )
+        
+        colnames(tab.one) <- c("ID", "Taxon")
+        colnames(tab.two) <- c("ID", "Taxon")
+        colnames(tab.three) <- c("ID", "Taxon")
+        colnames(tab.four) <- c("ID", "Taxon")
+        colnames(tab.five) <- c("ID", "Taxon")
+        
+        if ( dim(taxon.tab)[1] > 0 ) {
+          
+          i = 1
+          j = 1
+          N.rmd <- N %% 5
+          N.fix <- N + 5 - N.rmd
+          while ( i <= itr) {
+            tab.one  [i,] <- taxon.tab[j,]
+            tab.two  [i,] <- taxon.tab[j+1,]
+            tab.three[i,] <- taxon.tab[j+2,]
+            tab.four [i,] <- taxon.tab[j+3,]
+            tab.five [i,] <- taxon.tab[j+4,]
+            i <- i + 1  
+            j <- j + 5
+          }
+          row.names(tab.one) <- NULL
+          row.names(tab.two) <- NULL
+          row.names(tab.three) <- NULL
+          row.names(tab.four) <- NULL
+          row.names(tab.five) <- NULL
+          
+          tab.one <- na.omit(tab.one)
+          tab.two <- na.omit(tab.two)
+          tab.three <- na.omit(tab.three)
+          tab.four <- na.omit(tab.four)
+          tab.five <- na.omit(tab.five)
+        }
+        
+        output$survival_taxa_display_dend = renderUI({
+          
+          box(title = strong("Dendrogram"), width = 12, status = "primary", solidHeader = TRUE,
+              
+              fluidRow(width = 12, align = "center",
+                       div(style = "display: inline-block:vertical-align:top;", grVizOutput("dendrogram_surv", height = 1000, width = "98%")) ),
+              br(),
+              fluidRow(width = 12, align = "center",
+                       tagList(
+                         div(style="display: inline-block;vertical-align:top;", htmlOutput("M3sig_1_taxonlist") ),
+                         div(style="display: inline-block;vertical-align:top;", htmlOutput("M3sig_2_taxonlist") ),
+                         div(style="display: inline-block;vertical-align:top;", htmlOutput("M3sig_3_taxonlist") ),
+                         div(style="display: inline-block;vertical-align:top;", htmlOutput("M3sig_4_taxonlist") ),
+                         div(style="display: inline-block;vertical-align:top;", htmlOutput("M3sig_5_taxonlist") )
+                       )
+              )
+          )
+        })
+        
+        output$dendrogram_surv = renderGrViz({
+          taxa.sig$flow.text
+        })
+        output$M3sig_1_taxonlist <- renderText({
+          sig.tab1 <- kable(tab.one, 'html', booktabs =TRUE, escape = FALSE) %>%
+            kable_styling(latex_options = c('hold_position'))
+          sig.tab1
+        })
+        output$M3sig_2_taxonlist <- renderText({
+          
+          sig.tab2 <- kable(tab.two, 'html', booktabs =TRUE, escape = FALSE) %>%
+            kable_styling(latex_options = c('hold_position'))
+          sig.tab2
+        })
+        output$M3sig_3_taxonlist <- renderText({
+          
+          sig.tab3 <- kable(tab.three, 'html', booktabs =TRUE, escape = FALSE) %>%
+            kable_styling(latex_options = c('hold_position'))
+          sig.tab3
+        })
+        output$M3sig_4_taxonlist <- renderText({
+          
+          sig.tab4 <- kable(tab.four, 'html', booktabs =TRUE, escape = FALSE) %>%
+            kable_styling(latex_options = c('hold_position'))
+          sig.tab4
+        })
+        output$M3sig_5_taxonlist <- renderText({
+          
+          sig.tab5 <- kable(tab.five, 'html', booktabs =TRUE, escape = FALSE) %>%
+            kable_styling(latex_options = c('hold_position'))
+          sig.tab5
+        })
+        
+        
+        incProgress(1/10, message = "Displaying Results in progress")
+        output$taxa_surv_downloadTable = renderUI({
+          tagList(
+            p(" ", style = "margin-top: 20px;"),
+            box(title = strong("Download Output Table"), width = NULL, status = "primary", solidHeader = TRUE,
+                p("You can download the summary statistics and data analysis outputs.",
+                  style = "font-size:11pt"),
+                h5("Data Analysis Outputs"),
+                downloadButton("tdownloadTabl2", "Download", width = '50%', style = "background-color: red3"),
+                h5("Dendrogram"),
+                downloadButton("gdownload", "Download", width = '50%', style = "background-color: red3")
+            )
+          )
+        })
+        
+        output$tdownloadTabl2 <- downloadHandler(
+          filename = function() {
+            paste("Taxa.Analysis.Output.zip")
+          },
+          content = function(DA.file) {
+            temp <- setwd(tempdir())
+            on.exit(setwd(temp))
+            dataFiles = c("Phylum.txt", "Class.txt", "Order.txt" ,"Family.txt", "Genus.txt", "Species.txt")
+            write.table(as.data.frame(taxa.cox.out$phylum), file = "Phylum.txt", row.names = TRUE, col.names = TRUE, sep = "\t")
+            write.table(as.data.frame(taxa.cox.out$class), file = "Class.txt", row.names = TRUE, col.names = TRUE, sep = "\t")
+            write.table(as.data.frame(taxa.cox.out$order), file = "Order.txt", row.names = TRUE, col.names = TRUE, sep = "\t")
+            write.table(as.data.frame(taxa.cox.out$family), file = "Family.txt", row.names = TRUE, col.names = TRUE, sep = "\t")
+            write.table(as.data.frame(taxa.cox.out$genus), file = "Genus.txt", row.names = TRUE, col.names = TRUE, sep = "\t")
+            write.table(as.data.frame(taxa.cox.out$species), file = "Species.txt", row.names = TRUE, col.names = TRUE, sep = "\t")
+            zip(zipfile=DA.file, files=dataFiles)
+          }
+        )
+        
+        output$gdownload <- downloadHandler(
+          filename = function() {
+            paste("Taxa.Analysis.Graphical.Output", ".html", sep="")
+          },
+          content = function(file) {
+            htmlwidgets::saveWidget(as_widget(taxa.sig.dend(taxa.cox.out, chooseData$NAadded$tax.tab, "twopi", include)), file)
+          }
+        )
+        
+        ref_string = REFERENCE_CHECK(data_transform = input$surv.dataType_taxa, method_name = isolate(input$surv3.taxa.method), FDR = "Yes")
+        if (is.null(ref_string)) {
+          shinyjs::hide("referencesM3.taxa")
+        } else {
+          shinyjs::show("referencesM3.taxa")
+          output$referencesM3.taxa = renderUI({
+            tagList(
+              box(title = strong("References"), width = NULL, status = "primary", solidHeader = TRUE,
+                  HTML(paste(ref_string, collapse="<br/>"))
+              )
+            )
+          })
+        }
+      }
+    )
+    shinyjs::enable("runbtn_CoxT")
+  })
+  
+  
+  ###################################################
+  ####### Taxa Random Survival Forest Analysis ######
+  ###################################################
+  observeEvent(input$runbtn_model4, {
+    
+    taxa.sam.dat <- chooseData$sam.dat[match(rownames(chooseData$taxa.out$clr$phylum),rownames(chooseData$sam.dat)),]
+    surv.dat <- surv.events.dat.func(taxa.sam.dat, 
+                                     surv.con = chooseData$surv.Time.select, 
+                                     surv.second.bin = chooseData$censor.select)
+    taxa.dat.4 <- chooseData$taxa.out[[taxa.types$dataType_model4]]
+    
+    if (input$subgroup.4 == "Yes"){
+      
+      ind.sub <- taxa.sam.dat[[input$subgroup.sel.4]] == input$pick_subgroup.4
+      taxa.sam.dat <- taxa.sam.dat[-ind.sub,]  
+      surv.dat <- surv.events.dat.func(taxa.sam.dat, 
+                                       surv.con = chooseData$surv.Time.select, 
+                                       surv.second.bin = chooseData$censor.select)
+      
+      taxa.dat.4 <- lapply(taxa.dat.4, function(x){
+        return(x[-ind.sub,])})
+    }
+    
+    validate(
+      if (sum(surv.dat$status, na.rm = T) <= 0) {
+        showNotification("Error: No Events in Data",
+                         type = "error")
+      } else {
+        NULL
+      }
+    )
+    
+    shinyjs::disable("runbtn_model4")
+    shinyjs::disable("surv4.Time.select")
+    shinyjs::disable("surv4.dataType_taxa")
+    shinyjs::disable("surv4.censor.select")
+    shinyjs::disable("surv4.method.select")
+    shinyjs::disable("surv4.fold")
+    
+    withProgress(
+      
+      message = 'Calculation in progress',
+      detail = 'This may take a while...', value = 0, {
+        
+        incProgress(1/10, message = "Calculating")
+        
+        rank <- c("Phylum", "Class", "Order", "Family", "Genus", "Species")
+        
+        out <- list()
+        
+        folds <- as.numeric(isolate(input$surv4.fold.select))
+        trees <- as.numeric(isolate(input$surv4.tree.select))
+        
+        #taxa.dat <- chooseData$taxa.out[[taxa.types$dataType_model4]]
+        
+        if(input$include_speciesM4 == "Phylum - Genus (Default)"){
+          ranks = 5
+        } else {
+          ranks = 6
+        }
+        
+        for(i in 1:ranks) {
+          taxa.dat.4[[i]] <- taxa.dat.4[[i]][rownames(surv.dat),]
+        }
+        
+        
+        if (input$surv4.method.select == "Random survival forests") {
+          incProgress(6/10, message = "Random survival forests")
+          set.seed(521)
+          rf.fit.out <- try(surv.random.forest(taxa.dat.4, chooseData$taxa.names.out, surv.dat, n.tree = trees, ranks.upto = ranks), silent = TRUE)
+          
+          importance <- list()
+          duplicates <- list()
+          err.dat <- list()
+          
+          for (k in 1:ranks) {
+            imp <- as.matrix(rf.fit.out$rf.fit[[k]]$importance)
+            colnames(imp) <- "Importance"
+            importance[[k]] <- imp
+            
+            
+            
+            if (sum(is.na(chooseData$taxa.names.out$duplicates[[k]])) == 0) {
+              duplicate.taxa <- sapply(strsplit(unlist(chooseData$taxa.names.out$duplicates[[k]]), " :"),  "[", 1)
+              duplicates[[k]] <- rep(TRUE, length(duplicate.taxa)) #%in% taxon.inplot
+            } else {
+              duplicates[[k]] <- FALSE
+            }
+            err.dat[[k]] = try(as.data.frame(cbind(ntree = c(1:trees)[!is.na(rf.fit.out$rf.fit[[k]]$err.rate)], err.rate = rf.fit.out$rf.fit[[k]]$err.rate[!is.na(rf.fit.out$rf.fit[[k]]$err.rate)])), silent = TRUE)
+          }
+          incProgress(2/10, message = "Plotting")
+          output$surv4_display_results = renderUI({
+            tagList(
+              do.call(tabsetPanel, lapply(1:ranks, function(i) {
+                tabPanel(title = rank[i], align = "center",
+                         tabsetPanel(tabPanel(title = "Variable Importance", align = "center",
+                                              plotOutput(paste0("importance", i), height = 600, width = 500),
+                                              plotOutput(paste0("duplicates_m4", i), height = 11.5*sum(duplicates[[i]])+10, width = 500)),
+                                     tabPanel(title = "Error Rate", align = "center",
+                                              plotOutput(paste0("err.rate", i), height = 600, width = 500)))
+                )
+              }))
+            )
+          })
+          
+          
+          incProgress(1/10, message = "Plotting")
+          lapply(1:ranks, function(j) {
+            if (class(rf.fit.out)[1] == "try-error") {
+              output[[paste0("importance", j)]] <- renderPlot({
+                text(x = 0.5, y = 0.5, "Error : Please try different number of folds or follow-up period.", 
+                     cex = 1.2, col = "black")
+              })
+            } else {
+              output[[paste0("importance", j)]] <- renderPlot({
+                plot.importance(rf.fit.out$rf.fit[[j]], input$surv4.num.display)
+              })
+              output[[paste0("err.rate", j)]] <- renderPlot({
+                par(mar = c(7,9,2,2))
+                plot(smooth.spline(err.dat[[j]]), type = "l", ylab = "Error Rate", xlab = "Number of Trees", lwd = 1.5)
+              })
+              
+              lapply(1:ranks, function(j) {
+                output[[paste0("duplicates_m4", j)]] <- renderPlot({
+                  surv.en.duplicate.list(duplicates[[j]], chooseData$taxa.names.out$duplicates[[j]])
+                })
+              })
+              
+              output$downloadTable_m4 = renderUI({
+                tagList(
+                  p(" ", style = "margin-top: 20px;"),
+                  box(title = strong("Download Output Table"), width = NULL, status = "primary", solidHeader = TRUE,
+                      p("You can download the data analysis outputs.",
+                        style = "font-size:11pt"),
+                      h5("Data Analysis Outputs"),
+                      downloadButton("m4tdownloadTabl", "Download", width = '50%', style = "background-color: red3")
+                  )
+                )
+              })
+              
+              output$m4tdownloadTabl <- downloadHandler(
+                filename = function() {
+                  paste("Model4.Analysis.Output.zip")
+                },
+                content = function(DA.file) {
+                  temp <- setwd(tempdir())
+                  on.exit(setwd(temp))
+                  if (ranks == 5) {
+                    dataFiles = c("Phylum.txt", "Class.txt", "Order.txt" ,"Family.txt", "Genus.txt")
+                    write.table(as.data.frame(importance[[1]]), file = "Phylum.txt", sep = "\t")
+                    write.table(as.data.frame(importance[[2]]), file = "Class.txt", sep = "\t")
+                    write.table(as.data.frame(importance[[3]]), file = "Order.txt", sep = "\t")
+                    write.table(as.data.frame(importance[[4]]), file = "Family.txt", sep = "\t")
+                    write.table(as.data.frame(importance[[5]]), file = "Genus.txt", sep = "\t")
+                  }
+                  else if(ranks == 6) {
+                    dataFiles = c("Phylum.txt", "Class.txt", "Order.txt" ,"Family.txt", "Genus.txt", "Species.txt")
+                    write.table(as.data.frame(importance[[1]]), file = "Phylum.txt", sep = "\t")
+                    write.table(as.data.frame(importance[[2]]), file = "Class.txt", sep = "\t")
+                    write.table(as.data.frame(importance[[3]]), file = "Order.txt", sep = "\t")
+                    write.table(as.data.frame(importance[[4]]), file = "Family.txt", sep = "\t")
+                    write.table(as.data.frame(importance[[5]]), file = "Genus.txt", sep = "\t")
+                    write.table(as.data.frame(importance[[6]]), file = "Species.txt", sep = "\t")
+                  }
+                  zip(zipfile=DA.file, files=dataFiles)
+                }
+              )
+            }
+          })
+        } 
+        
+        ref_string = REFERENCE_CHECK(data_transform = input$surv4.dataType_taxa, method_name = isolate(input$surv4.method.select), FDR = "No")
+        if (is.null(ref_string)) {
+          shinyjs::hide("referencesM4")
+        } else {
+          shinyjs::show("referencesM4")
+          output$referencesM4 = renderUI({
+            tagList(
+              box(title = strong("References"), width = NULL, status = "primary", solidHeader = TRUE,
+                  HTML(paste(ref_string, collapse="<br/>"))
+              )
+            )
+          })
+        }
+      }
+    )
+    
+    
+    shinyjs::enable("surv4.censor.select")
+    shinyjs::enable("surv4.method.select")
+    shinyjs::enable("surv4.fold.select")
+    shinyjs::enable("surv4.Time.select")
+    shinyjs::enable("surv4.dataType_taxa")
+    shinyjs::enable("runbtn_model4")
+  })
+  
+}
