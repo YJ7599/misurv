@@ -3885,7 +3885,7 @@ server = function(input, output, session) {
       }
     )
     
-    #shinyjs::disable("runbtn_CoxT")
+    shinyjs::disable("runbtn_CoxT")
     
     taxa.sam.dat <- chooseData$sam.dat[match(rownames(chooseData$taxa.out$clr$phylum),rownames(chooseData$sam.dat)),]
     taxa.out.surv <- chooseData$taxa.out[[taxa.types$dataType_Surv]]
