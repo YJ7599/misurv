@@ -98,7 +98,7 @@
 server = function(input, output, session) {
   options(shiny.maxRequestSize=30*1024^2)
   
-  source("MiDataProc.Alpha.Cross.SectionalR")
+  source("MiDataProc.Alpha.Cross.Sectional.R")
   source("MiDataProc.Beta.Cross.Sectional.R")
   source("MiDataProc.Data.Upload.R")
   source("MiDataProc.Surv.Model1.R")
