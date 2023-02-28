@@ -25,7 +25,7 @@ library(MiRKAT)
 #library(GLMMMiRKAT)
 library(proxy)
 library(vegan3d)
-library(pca3d)
+#library(pca3d)
 #####################
 # Data manipulation #
 #####################
@@ -73,6 +73,8 @@ betaS.bin.cat.ref.func <- function(sel.bin.var, sel.con.var, sel.ref, sel.com, s
   
   return(list(bin.var = bin.var, con.var = con.var, Ds = Ds, Ks = Ks))
 }
+
+
 
 betaS.bin.cov.cat.ref.func <- function(sel.bin.var, sel.con.var, sel.ref, sel.com, sel.cov.var, sam.dat, Ds.Ks) {  
   bin.var <- unlist(sam.dat[,sel.bin.var])
@@ -248,22 +250,23 @@ mirkatS.bin.plot3d <- function(out, beta.bin.out, mod, sub.tit) {
 
 mirkatS.bin.cov <- function(beta.bin.cov.out) {
   set.seed(487)
-  #if ( is.numeric( beta.bin.cov.out$  )  )
   
   cov.ls <- names(beta.bin.cov.out$cov.var)
   
   library(dplyr)
   
   for ( i in 1:length(cov.ls)){
+
     if ( !is.numeric(beta.bin.cov.out$cov.var[[cov.ls[i]]] ) ){
       beta.bin.cov.out$cov.var[[cov.ls[i]]] <- ifelse(beta.bin.cov.out$cov.var[[cov.ls[i]]] == unique(beta.bin.cov.out$cov.var[[cov.ls[i]]])[1], 0, 1)
     }
   }
   
+ 
   out <- MiRKATS(#y = as.numeric(beta.bin.cov.out$bin.var)-1, 
                  obstime = as.numeric(beta.bin.cov.out$con.var)-1,#beta.bin.out$con.var,
                  delta   = as.numeric(beta.bin.cov.out$bin.var)-1,#beta.bin.out$bin.var,
-                 X = as.vector(beta.bin.cov.out$cov.var),
+                 X = data.frame(beta.bin.cov.out$cov.var),
                  beta = NULL,
                  Ks = beta.bin.cov.out$Ks,
                  nperm = 3000)
@@ -311,4 +314,3 @@ p.value.0.1 <- function(x, round.x = 3) {
   
   return(x)
 }
-
