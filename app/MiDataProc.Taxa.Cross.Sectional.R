@@ -20,7 +20,6 @@ library(ggthemes)
 library(erer)
 library(DiagrammeR)
 library(stringr)
-library(devtools)
 library(betareg)
 
 library(kableExtra)
