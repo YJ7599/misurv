@@ -2853,51 +2853,49 @@ server = function(input, output, session) {
             tagList(
               tabBox(title = strong("Box Plot", style = "color:black"), width = NULL,
                      tabPanel("Phylum", align = "center",
-                              plotOutput("box_1", height = height[1]*250, width = 750),
+                              plotOutput("box_rank_1", height = height[1]*250, width = 750),
                      )
                      ,
                      tabPanel("Class", align = "center",
-                              plotOutput("box_2", height = height[2]*250, width = 750),
+                              plotOutput("box_rank_2", height = height[2]*250, width = 750),
                      )
                      ,tabPanel("Order", align = "center",
-                               plotOutput("box_3", height = height[3]*250, width = 750),
+                               plotOutput("box_rank_3", height = height[3]*250, width = 750),
                      )
                      ,tabPanel("Family", align = "center",
-                               plotOutput("box_4", height = height[4]*250, width = 750),
+                               plotOutput("box_rank_4", height = height[4]*250, width = 750),
                      )
                      ,tabPanel("Genus", align = "center",
-                               plotOutput("box_5", height = height[5]*250, width = 750),
+                               plotOutput("box_rank_5", height = height[5]*250, width = 750),
                      )
                      ,tabPanel("Species", align = "center",
-                               plotOutput("box_6", height = height[6]*250, width = 750),
+                               plotOutput("box_rank_6", height = height[6]*250, width = 750),
                      )
               )
             )
           })
           
-          
-          
-          output$box_1 = renderPlot({ 
+          output$box_rank_1 = renderPlot({ 
             taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 1, TRUE)  
           })
           
-          output$box_2 = renderPlot({ 
+          output$box_rank_2 = renderPlot({ 
             taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 2, TRUE)  ####all.t.test.united should be used
           })
           
-          output$box_3 = renderPlot({ 
+          output$box_rank_3 = renderPlot({ 
             taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 3, TRUE)  ####all.t.test.united should be used
           })
           
-          output$box_4 = renderPlot({ 
+          output$box_rank_4 = renderPlot({ 
             taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 4, TRUE)  ####all.t.test.united should be used
           })
           
-          output$box_5 = renderPlot({ 
+          output$box_rank_5 = renderPlot({ 
             taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 5, TRUE)  ####all.t.test.united should be used
           })
           
-          output$box_6 = renderPlot({ 
+          output$box_rank_6 = renderPlot({ 
             taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 6, TRUE)  ####all.t.test.united should be used
           })
           
@@ -2973,7 +2971,7 @@ server = function(input, output, session) {
             box(title = strong("Dendrogram"), width = NULL, solidHeader = TRUE, status = "primary", 
                 
                 fluidRow(width = 600, align = "center", 
-                         div(style = "display: inline-block:vertical-align:top;", grVizOutput("first_taxa_dend", width = "98%", height = 1000))),
+                         div(style = "display: inline-block:vertical-align:top;", grVizOutput("first_taxa_plot", width = "98%", height = 1000))),
                 br(),
                 
                 fluidRow(width = NULL, align = "center",
@@ -2988,7 +2986,7 @@ server = function(input, output, session) {
             )
           })
           
-          output$first_taxa_dend= renderGrViz({
+          output$first_taxa_plot= renderGrViz({
             taxa.sig.dend(taxa.outputs$DAoutput, chooseData$NAadded$tax.tab, "twopi", include)$flow.text
           })
           
