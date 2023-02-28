@@ -4004,7 +4004,7 @@ server = function(input, output, session) {
           })
         })
         
-        taxa.sig <- taxa.sig.dend(taxa.cox.out, chooseData$NAadded$tax.tab, "twopi", include)
+        taxa.sig <- taxa.sig.dend.surv(taxa.cox.out, chooseData$NAadded$tax.tab, "twopi", include)
         
         taxon.tab <- taxa.sig$taxon.tab
         ci.tab.all <- taxa.sig$ci.tab.all
@@ -4089,7 +4089,7 @@ server = function(input, output, session) {
         })
         
         output$dendrogram_surv = renderGrViz({
-          taxa.sig$flow.text
+          taxa.sig.dend.surv(taxa.cox.out, chooseData$NAadded$tax.tab, "twopi", include)$flow.text
         })
         output$M3sig_1_taxonlist <- renderText({
           sig.tab1 <- kable(tab.one, 'html', booktabs =TRUE, escape = FALSE) %>%
@@ -4160,7 +4160,7 @@ server = function(input, output, session) {
             paste("Taxa.Analysis.Graphical.Output", ".html", sep="")
           },
           content = function(file) {
-            htmlwidgets::saveWidget(as_widget(taxa.sig.dend(taxa.cox.out, chooseData$NAadded$tax.tab, "twopi", include)), file)
+            htmlwidgets::saveWidget(as_widget(taxa.sig.dend.surv(taxa.cox.out, chooseData$NAadded$tax.tab, "twopi", include)$flow.text), file)
           }
         )
         
