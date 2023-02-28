@@ -311,13 +311,8 @@ surv.Cox.plot.func <- function( cox.fit, surv.dat, input = NULL) {
         ggplot2::annotate("text",
                           x = 8, y = 0.06, 
                           label = output1, size = 4)
-      
+    }
     return( ggsurv  )
-  } else {
-    plot.new()
-    text(x = 0.5, y = 0.5, "Cox model did not fit the data.", 
-         cex = 1.2, col = "black")
-  }
 }
 
 
