@@ -186,7 +186,7 @@ library(splitTools)
         tabItem(tabName = "home",
                 div(id = "homepage", br(), HOME_COMMENT, 
                     p(" ", style = "margin-bottom: 10px;"),
-                    div(tags$img(src='MiSurv_workflow.png', height = 700, width = 1200), style="text-align: center;"),
+                    div(tags$img(src='MiSurv_workflow.png', height = 656, width = 1200), style="text-align: center;"),
                     br(),
                     tags$ul(
                       tags$li(HOME_COMMENT1), tags$li(HOME_COMMENT2), tags$li(HOME_COMMENT3), tags$li(HOME_COMMENT4), tags$li(HOME_COMMENT5),
@@ -194,7 +194,8 @@ library(splitTools)
                     br(),
                     HOME_COMMENT6,
                     HOME_COMMENT7,
-                    HOME_COMMENT8
+                    HOME_COMMENT8,
+                    br()
                 )),
         
         ##### DATA INPUT ####
@@ -333,7 +334,8 @@ library(splitTools)
                                     DATA_TRANSFORM_COMMENT,
                                     actionButton("divCalcRun", (strong("Run!")), class = "btn-info"), 
                                     p(" ", style = "margin-bottom: +10px;"),
-                                    p(strong("Attention:"), "Once you changed any setting in the preceding Data Input or Quality Control, you have to click this Run button again to use any of the following data analytic modules."),),
+                                    p(strong("Attention:"), "Once you changed any setting in the preceding Data Input or Quality Control, you have to click this Run button again to use any of the following data analytic modules."),
+                                    ),
                                 uiOutput("divCalcDownload")),
                          column(width = 6, style='padding-left:0px',
                                 box(title = strong("References"), width = NULL, status = "primary", solidHeader = TRUE,
@@ -415,17 +417,13 @@ library(splitTools)
                                                        uiOutput("morePrimvar_opt_taxa"),
                                                        uiOutput("covariates_taxa"), 
                                                        actionButton("taxa_runbtn_bin", (strong("Run!")), class = "btn-info"),
-                                                       #br(),
                                                        uiOutput("downloadTable_taxa"),
                                                        uiOutput("referencesM2.taxa"))),
                   
                   mainPanel(width = 9,
-                            fluidRow(width = 12, 
-                                     div(style='height:800px;overflow-y: scroll;', uiOutput("taxa_display_results")), br(),br(),
-                                     
-                                     uiOutput("taxa_display_dend"))
-                            #column(9,  uiOutput("taxa_display_dend")),
-                            #column(2, uiOutput("M2sig_taxon")))
+                            fluidRow(width = 8, 
+                                     div(style='height:800px;overflow-y: scroll;', uiOutput("taxa_display_results_hmm")), br(),br(),
+                                     uiOutput("vis_rank"))
                   ))),
         
         
@@ -477,7 +475,7 @@ library(splitTools)
                                                        uiOutput("referencesM3.taxa"))),
                   mainPanel(width = 9,
                             fluidRow(width = 12, 
-                                     div(style='height:800px;overflow-y: scroll;', uiOutput("surv_taxa_results")), br(),br(), #s_taxa_display_result 
+                                     div(style='height:700px;overflow-y: scroll;', uiOutput("surv_taxa_results")), br(),br(), #s_taxa_display_result 
                                      
                                      uiOutput("survival_taxa_display_dend"))
                             
