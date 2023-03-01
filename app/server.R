@@ -4004,9 +4004,12 @@ server = function(input, output, session) {
         } else {
           print("second here")
           shinyjs::show("surv_last_results")
+          print("hahahahaha") 
           print(str(height_forest)) 
           
+          print("hmmmmmm") 
           print(height_forest) 
+          print("kkkkk") 
           
           output$surv_last_results= renderUI({
             tagList(
