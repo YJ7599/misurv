@@ -3982,7 +3982,8 @@ server = function(input, output, session) {
           
           print("how about")
           
-          shinyjs::show("forest_Surv")
+          print(nrow) 
+          shinyjs::show("forest_Surv1")
           shinyjs::show("duplicates_surv")
           
           lapply(1:nrow, function(j) {
@@ -4012,6 +4013,7 @@ server = function(input, output, session) {
           })
           
           print("how about")
+          print(nrow) 
           shinyjs::show("forest_Surv1")
      
           
