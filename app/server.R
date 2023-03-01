@@ -4004,6 +4004,10 @@ server = function(input, output, session) {
         } else {
           print("second here")
           shinyjs::show("surv_last_results")
+          print(str(height_forest)) 
+          
+          print(height_forest) 
+          
           output$surv_last_results= renderUI({
             tagList(
               do.call(tabsetPanel, lapply(1:nrow, function(i) {
