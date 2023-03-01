@@ -4012,8 +4012,8 @@ server = function(input, output, session) {
           })
           
           print("how about")
-          shinyks::show("forest_Surv1")
-          #shinyjs::show(paste0("forest_Surv", i))
+          shinyjs::show("forest_Surv1")
+     
           
           lapply(1:nrow, function(j) {
             output[[paste0("forest_Surv", j)]] <- renderPlot({
