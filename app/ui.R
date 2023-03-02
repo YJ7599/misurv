@@ -392,22 +392,6 @@ library(splitTools)
                             fluidRow(width = 12, 
                                      uiOutput("alpha_display_results"))))),
         
-        ##### Model 2: BETA DIVERSITY ####
-        tabItem(tabName = "betaDivanalysis", br(),
-                sidebarLayout(
-                  position = "left",
-                  div(style="width: 98%;",sidebarPanel(width = 3,
-                                                       uiOutput("beta_primvar_cross"),
-                                                       uiOutput("beta_prim_vars_types_cross"),
-                                                       uiOutput("beta_covariates_cross"), 
-                                                       actionButton("beta_runbtn_cross_bin", (strong("Run!")), class = "btn-info"),
-                                                       #br(), 
-                                                       uiOutput("beta_downloadTable"),
-                                                       uiOutput("referencesM2.beta"))),
-                  mainPanel(width = 9,
-                            fluidRow(width = 12, 
-                                     uiOutput("beta_display_results_cross"))))),
-        
         ##### Model 2: Taxa Analysis ####
         tabItem(tabName = "taxaAnalysis", br(),
                 sidebarLayout( 
@@ -425,6 +409,24 @@ library(splitTools)
                                      div(style='height:800px;overflow-y: scroll;', uiOutput("airpods")), br(),br(),
                                      uiOutput("nine_five_four"))
                   ))),
+        
+        ##### Model 2: BETA DIVERSITY ####
+        tabItem(tabName = "betaDivanalysis", br(),
+                sidebarLayout(
+                  position = "left",
+                  div(style="width: 98%;",sidebarPanel(width = 3,
+                                                       uiOutput("beta_primvar_cross"),
+                                                       uiOutput("beta_prim_vars_types_cross"),
+                                                       uiOutput("beta_covariates_cross"), 
+                                                       actionButton("beta_runbtn_cross_bin", (strong("Run!")), class = "btn-info"),
+                                                       #br(), 
+                                                       uiOutput("beta_downloadTable"),
+                                                       uiOutput("referencesM2.beta"))),
+                  mainPanel(width = 9,
+                            fluidRow(width = 12, 
+                                     uiOutput("beta_display_results_cross"))))),
+        
+        
         
         
         ##### Model 3: ALPHA DIVERSITY ####
