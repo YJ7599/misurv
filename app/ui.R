@@ -418,7 +418,7 @@ library(splitTools)
                                                        uiOutput("covariates_taxa"), 
                                                        actionButton("taxa_runbtn_bin", (strong("Run!")), class = "btn-info"),
                                                        uiOutput("dttttfragile"),
-                                                       uiOutput("referencesM2.taxa"))),
+                                                       uiOutput("rtttt.anti"))),
                   
                   mainPanel(width = 9,
                             fluidRow(width = 8, 
