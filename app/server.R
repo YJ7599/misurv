@@ -3202,7 +3202,7 @@ server = function(input, output, session) {
             box(title = strong("Dendrogram"), width = NULL, solidHeader = TRUE, status = "primary", 
                 
                 fluidRow(width = 600, align = "center", 
-                         div(style = "display: inline-block:vertical-align:top;", grVizOutput("boom_taxa", width = "98%", height = 1000))),
+                         div(style = "display: inline-block:vertical-align:top;", grVizOutput("boo_whan", width = "98%", height = 1000))),
                 br(),
                 
                 fluidRow(width = NULL, align = "center",
@@ -3217,7 +3217,7 @@ server = function(input, output, session) {
             )
           })
           
-          shinyjs::show("boom_taxa") 
+          shinyjs::show("boom_whan") 
           shinyjs::show("hmm_T1")
           shinyjs::show("hmm_T2")
           shinyjs::show("hmm_T3")
@@ -3225,7 +3225,7 @@ server = function(input, output, session) {
           shinyjs::show("hmm_T5")
           
                     
-          output$boom_taxa= renderGrViz({
+          output$boom_whan= renderGrViz({
             taxa.sig.dend(taxa.outputs$DAoutput, chooseData$NAadded$tax.tab, "twopi", include)$flow.text
           })
           
