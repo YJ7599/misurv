@@ -2804,7 +2804,7 @@ server = function(input, output, session) {
               plotOutput("hahahaha", height = height = 400, width = 750))
             )
           })
-          '
+          
         output$hahahaha = renderPlot({ 
             hist(1:10)   
           })
