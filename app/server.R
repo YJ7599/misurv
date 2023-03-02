@@ -3970,9 +3970,9 @@ server = function(input, output, session) {
         
         if (duplicate.texts > 0) {
           print("first here")
-          shinyjs::show("surv_last_results")
+          shinyjs::show("ha_shi")
           
-          output$surv_last_results = renderUI({
+          output$ha_shi = renderUI({
             tagList(
               do.call(tabsetPanel, lapply(1:nrow, function(i) {
                 tabPanel(title = paste0("Page ", i), align = "center",
@@ -4003,7 +4003,7 @@ server = function(input, output, session) {
           
         } else {
           print("second here")
-          shinyjs::show("surv_last_results")
+          shinyjs::show("ha_shi")
           print("hahahahaha") 
           print(str(height_forest)) 
           
@@ -4013,7 +4013,7 @@ server = function(input, output, session) {
           
    
           
-          output$surv_last_results <- renderUI({
+          output$ha_shi <- renderUI({
             plotOutput("hey_plot")
             })
           
@@ -4021,7 +4021,7 @@ server = function(input, output, session) {
             hist(1:10) 
             }) 
           
-          #output$surv_last_results= renderUI({
+          #output$ha_shi= renderUI({
           #  tagList(
           #    do.call(tabsetPanel, lapply(1:nrow, function(i) {
           #      tabPanel(title = paste0("Page ", i), align = "center",
