@@ -3129,7 +3129,7 @@ server = function(input, output, session) {
           
           incProgress(3/10, message = "Displaying Results in progress")
           
-          dend_result <- taxa.sig.dend(taxa.outputs$DAoutput, chooseData$NAadded$tax.tab, "twopi", include)
+          dend_result <- eraizza(taxa.outputs$DAoutput, chooseData$NAadded$tax.tab, "twopi", include)
           flow.text <- dend_result$flow.text
           taxon.tab <- dend_result$taxon.tab
           ci.tab.all <- dend_result$ci.tab.all
@@ -3227,7 +3227,7 @@ server = function(input, output, session) {
           
                     
           output$booboo= renderGrViz({
-            taxa.sig.dend(taxa.outputs$DAoutput, chooseData$NAadded$tax.tab, "twopi", include)$flow.text
+            eraizza(taxa.outputs$DAoutput, chooseData$NAadded$tax.tab, "twopi", include)$flow.text
           })
           
           output$hmm_T1 <- renderText({
