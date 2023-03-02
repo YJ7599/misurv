@@ -1927,7 +1927,7 @@ taxa.names.rank <- function(taxa.out){
 # Which variable? #
 ###################
 
-taxa.sig.dend <- function(out, tax.tab, layout.type = "twopi", species.include = "FALSE") {
+eraizza <- function(out, tax.tab, layout.type = "twopi", species.include = "FALSE") {
   
   print("come in success_dend")
   
