@@ -168,7 +168,7 @@ library(splitTools)
                   menuItem("Module 2",  icon = icon("chart-pie"),
                            menuSubItem("Alpha Diversity", tabName = "alphaDivanalysis", icon = icon("font")),
                            menuSubItem("Beta Diversity", tabName = "betaDivanalysis", icon = icon("bold")),
-                           menuSubItem(id = "please", text = "Taxonomic Abundance", tabName = "thelasttrail", icon = icon("align-left"))),
+                           menuSubItem( "Taxonomic Abundance", tabName = "thelasttrail", icon = icon("align-left"))),
                   menuItem("Module 3",  icon = icon("disease"),
                            menuSubItem("Alpha Diversity", tabName = "alphaDivanalysisSurv", icon = icon("font")),
                            menuSubItem("Beta Diversity", tabName = "betaDivanalysisSurv", icon = icon("bold")),
