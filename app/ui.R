@@ -404,10 +404,11 @@ library(splitTools)
                                                        uiOutput("dttttfragile"),
                                                        uiOutput("rtttt.anti"))),
                   
-                  mainPanel(width = 9,
-                            fluidRow(width = 8, 
-                                     div(style='height:800px;overflow-y: scroll;', uiOutput("airpods")), br(),br(),
-                                     uiOutput("nine_five_four"))
+                  mainPanel("mainpanel")
+                  #mainPanel(width = 9,
+                  #          fluidRow(width = 8, 
+                  #                   div(style='height:800px;overflow-y: scroll;', uiOutput("airpods")), br(),br(),
+                  #                   uiOutput("nine_five_four"))
                   ))),
         
         ##### Model 2: BETA DIVERSITY ####
