@@ -3515,7 +3515,7 @@ server = function(input, output, session) {
         }
         
         incProgress(1/10, message = "Displaying Results in progress")
-        output$downloadTable_taxa = renderUI({
+        output$dttttfragile = renderUI({
           tagList(
             p(" ", style = "margin-top: 20px;"),
             box(title = strong("Download Output Table"), width = NULL, status = "primary", solidHeader = TRUE,
@@ -3596,10 +3596,10 @@ server = function(input, output, session) {
         
         ref_string = REFERENCE_CHECK(data_transform = input$dataType_taxa, method_name = isolate(input$chooseMethod_taxa), FDR = isolate("Yes"))
         if (is.null(ref_string)) {
-          shinyjs::hide("referencesM2.taxa")
+          shinyjs::hide("rtttt.anti")
         } else {
-          shinyjs::show("referencesM2.taxa")
-          output$referencesM2.taxa = renderUI({
+          shinyjs::show("rtttt.anti")
+          output$rtttt.anti = renderUI({
             tagList(
               box(title = strong("References"), width = NULL, status = "primary", solidHeader = TRUE,
                   HTML(paste(ref_string, collapse="<br/>"))
