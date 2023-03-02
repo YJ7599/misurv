@@ -168,7 +168,7 @@ library(splitTools)
                   menuItem("Module 2",  icon = icon("chart-pie"),
                            menuSubItem("Alpha Diversity", tabName = "alphaDivanalysis", icon = icon("font")),
                            menuSubItem("Beta Diversity", tabName = "betaDivanalysis", icon = icon("bold")),
-                           menuSubItem("Taxonomic Abundance", tabName = "taxaAnalysis", icon = icon("align-left"))),
+                           menuSubItem("Taxonomic Abundance", tabName = "thelasttrail", icon = icon("align-left"))),
                   menuItem("Module 3",  icon = icon("disease"),
                            menuSubItem("Alpha Diversity", tabName = "alphaDivanalysisSurv", icon = icon("font")),
                            menuSubItem("Beta Diversity", tabName = "betaDivanalysisSurv", icon = icon("bold")),
@@ -393,7 +393,7 @@ library(splitTools)
                                      uiOutput("alpha_display_results"))))),
         
         ##### Model 2: Taxa Analysis ####
-        tabItem(tabName = "taxaAnalysis", br(),
+        tabItem(tabName = "thelasttrail", br(),
                 sidebarLayout( 
                   position = "left",
                   div(style="width: 98%;",sidebarPanel(width = 3,
