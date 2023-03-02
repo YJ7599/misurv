@@ -3069,7 +3069,11 @@ server = function(input, output, session) {
           
           shinyjs::show("airpods") 
           
-          #print(outputOptions(output)) 
+          print("first") 
+          print(outputOptions(output))
+          print("second") 
+          print(outputOptions(output), suspendWhenHidden = FALSE)
+          
           #outputOptions(output, 'kkkirings', suspendWhenHidden = FALSE)
           #outputOptions(output, 'water__melon', suspendWhenHidden = FALSE)
           
