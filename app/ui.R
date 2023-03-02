@@ -156,7 +156,7 @@ library(splitTools)
     title = "MiSurv",
     dashboardHeader(title = span(TITLE, style = "float:left;font-size: 20px"), titleWidth = "100%"),
     dashboardSidebar(
-      #tags$script(JS("document.getElementsByClassName('sidebar-toggle')[0].style.visibility = 'hidden';")),
+      tags$script(JS("document.getElementsByClassName('sidebar-toggle')[0].style.visibility = 'hidden';")),
       sidebarMenu(id = "side_menu",
                   menuItem("Home", tabName = "home", icon = icon("home")),
                   menuItem("Data Processing",  icon = icon("file-text-o"),
