@@ -108,8 +108,8 @@ server = function(input, output, session) {
   source("MiDataProc.Surv.Model4.R")
   source("MiDataProc.Taxa.Cross.Sectional.R")
   
-  output$shibal <- renderUI({})
-  outputOptions(output, 'shibal', suspendWhenHidden = FALSE)
+  output$airpods <- renderUI({})
+  outputOptions(output, 'airpods', suspendWhenHidden = FALSE)
 
   
   env <- new.env()
@@ -2856,9 +2856,9 @@ server = function(input, output, session) {
             } 
           }
           
-          shinyjs::toggle("shibal") 
+         
           
-          output$shibal= renderUI({
+          output$airpods= renderUI({
             tagList(
               tabBox(title = strong("Box Plot", style = "color:black"), width = NULL,
                      tabPanel("Phylum", align = "center",
@@ -3072,10 +3072,10 @@ server = function(input, output, session) {
           
           print("11:22") 
           
-          shinyjs::show("shibal") 
+          shinyjs::show("airpods") 
          
           
-          output$shibal = renderUI({
+          output$airpods = renderUI({
             tagList(
               tabBox(title = strong("Box Plot", style = "color:black"), width = NULL,
            tabPanel("Phylum", align = "center",
@@ -3333,8 +3333,8 @@ server = function(input, output, session) {
           }
           
           if (duplicate.texts>0) {
-            shinyjs::show("shibal") 
-            output$shibal = renderUI({
+            shinyjs::show("airpods") 
+            output$airpods = renderUI({
               tagList(
                 do.call(tabsetPanel, lapply(1:nrow, function(i) {
                   tabPanel(title = paste0("Page ", i), align = "center",
@@ -3344,8 +3344,8 @@ server = function(input, output, session) {
               )
             })
           } else {
-            shinyjs::show("shibal") 
-            output$shibal = renderUI({
+            shinyjs::show("airpods") 
+            output$airpods = renderUI({
               tagList(
                 do.call(tabsetPanel, lapply(1:nrow, function(i) {
                   tabPanel(title = paste0("Page ", i), align = "center",
