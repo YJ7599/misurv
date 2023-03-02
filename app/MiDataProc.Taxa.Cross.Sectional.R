@@ -1613,7 +1613,7 @@ taxa.con.beta.func <- function(con.var, taxa) {
 
 taxa.bin.boxplot <- function(bin.var, taxa.out, t.test.q.out, taxa.names.out, page, mult.test.cor = TRUE) {  ## the taxa.out is actually taxa.out$clr
   
-  print('taxa.bin.boxplot.inside')
+  print('wgy dont come in ')
   
   sig.list <- list()
   
