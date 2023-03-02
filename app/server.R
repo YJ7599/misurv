@@ -1558,7 +1558,7 @@ server = function(input, output, session) {
     
     output$model4_data_format <- renderUI({
       tagList(
-        prettyRadioButtons("surv4.dataType_taxa", label = h4(strong("Data Format?", style = "color:black")), animation = "jelly",
+        prettyRadioButtons("surv4.dataType_taxa", label = h4(strong("Data Format?", style = "color:black")), animation = "jelly", icon = icon("check"), 
                            c("CLR (Default)", "Count (rarefied)", "Proportion", "Arcsine-root"), selected = "CLR (Default)",width = '70%'))
     }) 
     
