@@ -2774,6 +2774,10 @@ server = function(input, output, session) {
     shinyjs::disable("include_species.dend")
     shinyjs::disable("chooseMethod_taxa")
     
+    output$airpods <- renderUI({})
+    outputOptions(output, "airpods", suspendWhenHidden = FALSE)
+
+    
     withProgress(
       message = 'Calculation in progress',
       detail = 'This may take a while...', value = 0, {
