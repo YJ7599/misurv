@@ -106,7 +106,7 @@ server = function(input, output, session) {
   source("MiDataProc.Surv.Model3.Beta.R")
   source("MiDataProc.Surv.Model3.Taxa.R")
   source("MiDataProc.Surv.Model4.R")
-  source("MiDataProc.Taxa.Cross.Sectional.R")
+  
   
   env <- new.env()
   nm <- load(file = "Data/biom.Rdata", env)[1]
