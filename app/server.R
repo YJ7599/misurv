@@ -3057,63 +3057,71 @@ server = function(input, output, session) {
             }
           }
           
-          shinyjs::show("pen_h") 
-          output$pen_h= renderUI({
-            tagList(
-              tabBox(title = strong("Box Plot", style = "color:black"), width = NULL,
-                     tabPanel("Phylum", align = "center",
-                              plotOutput("rank1", height = nrow[1]*250, width = 750),
-                     )
-                     ,
-                     tabPanel("Class", align = "center",
-                              plotOutput("rank2", height = nrow[2]*250, width = 750),
-                     )
-                     ,tabPanel("Order", align = "center",
-                               plotOutput("rank3", height = nrow[3]*250, width = 750),
-                     )
-                     ,tabPanel("Family", align = "center",
-                               plotOutput("rank4", height = nrow[4]*250, width = 750),
-                     )
-                     ,tabPanel("Genus", align = "center",
-                               plotOutput("rank5", height = nrow[5]*250, width = 750),
-                     )
-                     ,tabPanel("Species", align = "center",
-                               plotOutput("rank6", height = nrow[6]*250, width = 750),
-                     )
-              )
-            )
-          })
+          shinyjs::show("airpods") 
+          #shinyjs::show("pen_h") 
+          output$airpods = renderUI({
+            plotOutput("pods_1") 
+            }) 
           
-          shinyjs::show("rank1") 
-          shinyjs::show("rank2") 
-          shinyjs::show("rank3") 
-          shinyjs::show("rank4") 
-          shinyjs::show("rank5") 
-          shinyjs::show("rank6") 
+          output$pods_1 <- renderPlot({
+            hist(1:10)
+            })
+          #output$airpods= renderUI({
+          #  tagList(
+          #    tabBox(title = strong("Box Plot", style = "color:black"), width = NULL,
+          #           tabPanel("Phylum", align = "center",
+          #                    plotOutput("pod1", height = nrow[1]*250, width = 750),
+          #           )
+          #           ,
+          #           tabPanel("Class", align = "center",
+          #                    plotOutput("pod2", height = nrow[2]*250, width = 750),
+          #           )
+          #           ,tabPanel("Order", align = "center",
+          #                     plotOutput("pod3", height = nrow[3]*250, width = 750),
+          #           )
+          #           ,tabPanel("Family", align = "center",
+          #                     plotOutput("pod4", height = nrow[4]*250, width = 750),
+          #           )
+          #           ,tabPanel("Genus", align = "center",
+          #                     plotOutput("pod5", height = nrow[5]*250, width = 750),
+          #           )
+          #           ,tabPanel("Species", align = "center",
+          #                     plotOutput("pod6", height = nrow[6]*250, width = 750),
+          #           )
+          #    )
+          #  )
+          #})
           
-          output$rank1 = renderPlot({ 
-            taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 1, TRUE)  
-          })
+          #shinyjs::show("rank1") 
+          #shinyjs::show("rank2") 
+          #shinyjs::show("rank3") 
+          #shinyjs::show("rank4") 
+          #shinyjs::show("rank5") 
+          #shinyjs::show("rank6") 
           
-          output$rank2 = renderPlot({ 
-            taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 2, TRUE)  ####all.t.test.united should be used
-          })
+          #output$rank1 = renderPlot({ 
+          #  taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 1, TRUE)  
+          #})
           
-          output$rank3 = renderPlot({ 
-            taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 3, TRUE)  ####all.t.test.united should be used
-          })
+          #output$rank2 = renderPlot({ 
+          #  taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 2, TRUE)  ####all.t.test.united should be used
+          #})
           
-          output$rank4 = renderPlot({ 
-            taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 4, TRUE)  ####all.t.test.united should be used
-          })
+          #output$rank3 = renderPlot({ 
+          #  taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 3, TRUE)  ####all.t.test.united should be used
+          #})
           
-          output$rank5 = renderPlot({ 
-            taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 5, TRUE)  ####all.t.test.united should be used
-          })
+          #output$rank4 = renderPlot({ 
+          #  taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 4, TRUE)  ####all.t.test.united should be used
+          #})
           
-          output$rank6 = renderPlot({ 
-            taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 6, TRUE)  ####all.t.test.united should be used
-          })
+          #output$rank5 = renderPlot({ 
+          #  taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 5, TRUE)  ####all.t.test.united should be used
+          #})
+          
+          #output$rank6 = renderPlot({ 
+          #  taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 6, TRUE)  ####all.t.test.united should be used
+          #})
           
           incProgress(3/10, message = "Displaying Results in progress")
           
