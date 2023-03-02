@@ -4011,15 +4011,7 @@ server = function(input, output, session) {
           print(height_forest) 
           print("kkkkk") 
           
-          
-          output$surv_last_results= renderUI({
-            tagList(
-              do.call(tabsetPanel, lapply(1:nrow, function(i) {
-                tabPanel(title = paste0("Page ", i), align = "center",
-                         plotOutput(paste0("forest_Surv", i), height = as.numeric(height_forest), width = 900))
-              })) 
-            )
-          })
+   
           
           output$surv_last_results <- renderUI({
             plotOutput("hey_plot")
