@@ -2848,7 +2848,7 @@ server = function(input, output, session) {
             } 
           }
           
-          output$taxa_display_results_hmm= renderUI({
+          output$pen_h= renderUI({
             tagList(
               tabBox(title = strong("Box Plot", style = "color:black"), width = NULL,
                      tabPanel("Phylum", align = "center",
@@ -3040,7 +3040,7 @@ server = function(input, output, session) {
             }
           }
           
-          output$taxa_display_results_hmm= renderUI({
+          output$pen_h= renderUI({
             tagList(
               tabBox(title = strong("Box Plot", style = "color:black"), width = NULL,
                      tabPanel("Phylum", align = "center",
@@ -3281,7 +3281,7 @@ server = function(input, output, session) {
           }
           
           if (duplicate.texts>0) {
-            output$taxa_display_results_hmm = renderUI({
+            output$pen_h = renderUI({
               tagList(
                 do.call(tabsetPanel, lapply(1:nrow, function(i) {
                   tabPanel(title = paste0("Page ", i), align = "center",
