@@ -56,7 +56,7 @@ COPY app/Data/MiCloud_S_Ex.Rdata /root/app
 COPY app/MiDataProc.Data.Upload.R /root/app
 COPY app/MiDataProc.Alpha.Cross.Sectional.R /root/app
 COPY app/MiDataProc.Beta.Cross.Sectional.R /root/app
-COPY app/MiDataProc.Taxa.Cross.Sectional.R /root/app
+
 COPY app/MiDataProc.Surv.Model1.R /root/app
 COPY app/MiDataProc.Surv.Model3.Alpha.R /root/app
 COPY app/MiDataProc.Surv.Model3.Beta.R /root/app
