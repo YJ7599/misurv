@@ -1296,7 +1296,7 @@ server = function(input, output, session) {
     
     output$primvars_taxa <- renderUI({
       tagList(
-        prettyRadioButtons("dataType_taxa", label = h4(strong("Data Format?", style = "color:black")), animation = "jelly",
+        prettyRadioButtons("dataType_taxa", label = h4(strong("Data Format?", style = "color:black")), animation = "jelly", icon = icon("check"), 
                            c("CLR (Default)", "Count (rarefied)", "Proportion", "Arcsine-root"), selected = "CLR (Default)",width = '70%'),
         p(" ", style = "margin-bottom: -10px;"),
         selectInput("primvar_taxa", label = h4(strong("Treatment Variable?", style = "color:black")),
@@ -1343,7 +1343,7 @@ server = function(input, output, session) {
           output$covariates_taxa <- renderUI({
             tagList(
               p(" ", style = "margin-bottom: -5px;"),
-              prettyRadioButtons("covariates_taxa", label = h4(strong("Covariate(s)?", style = "color:black")), animation = "jelly",
+              prettyRadioButtons("covariates_taxa", label = h4(strong("Covariate(s)?", style = "color:black")), animation = "jelly", icon = icon("check"),
                                  c("None", "Covariate(s)"), selected = "None",width = '70%'),
               
               shinyjs::hidden(
@@ -1427,7 +1427,7 @@ server = function(input, output, session) {
     
     output$censor.t <- renderUI({
       tagList(
-        prettyRadioButtons("surv.dataType_taxa", label = h4(strong("Data Format?", style = "color:black")), animation = "jelly",
+        prettyRadioButtons("surv.dataType_taxa", label = h4(strong("Data Format?", style = "color:black")), animation = "jelly", icon = icon("check"), 
                            c("CLR (Default)", "Count (rarefied)", "Proportion", "Arcsine-root"), selected = "CLR (Default)",width = '70%'),
         uiOutput("surv3T.subgroup")
       )
