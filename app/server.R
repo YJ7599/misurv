@@ -2856,7 +2856,7 @@ server = function(input, output, session) {
             } 
           }
           
-          shinyjs::show("shibal") 
+          shinyjs::toggle("shibal") 
           
           output$shibal= renderUI({
             tagList(
