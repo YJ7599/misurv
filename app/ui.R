@@ -404,11 +404,12 @@ library(splitTools)
                                                        uiOutput("dttttfragile"),
                                                        uiOutput("rtttt.anti"))),
                   
+                  mainPanel(width = 9, plotOutput("baram")) 
                   #mainPanel(width = 9, uiOutput("airpods"))
-                  mainPanel(width = 9, 
-                            fluidRow(width = 8,
-                                     uiOutput("airpods")
-                                     ))
+                  #mainPanel(width = 9, 
+                  #          fluidRow(width = 8,
+                  #                   uiOutput("airpods")
+                  #                   ))
                   
                   #mainPanel("mainpanel")
                   #mainPanel(width = 9,
