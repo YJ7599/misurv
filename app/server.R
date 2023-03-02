@@ -2837,6 +2837,7 @@ server = function(input, output, session) {
         taxa_dataTaxa <- taxa.results$taxa
         
         
+        
         if (input$chooseMethod_taxa == "Welch t-test") {
           incProgress(5/10, message = "Welch t-test")
           
@@ -2844,7 +2845,11 @@ server = function(input, output, session) {
           taxa.t.test.q.out <- bin.q.united.func(taxa.t.test.out, method = "BH")
           
           taxa.outputs$DAoutput = taxa.t.test.q.out
-          
+        
+          print(taxa_dataBinvar) 
+          print(taxa_dataTaxa) 
+          print(taxa.outputs$DAoutput) 
+
           height = numeric()
           for (r in 1:6) {
             row.num <- ceiling(sum(taxa.t.test.q.out[[r]]$Q.value < 0.05)/4)
@@ -2854,8 +2859,6 @@ server = function(input, output, session) {
               height[r] <- 1
             } 
           }
-          
-         
           
           output$airpods= renderUI({
             tagList(
