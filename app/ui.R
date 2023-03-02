@@ -400,7 +400,7 @@ library(splitTools)
                                                        uiOutput("primvars_taxa"),
                                                        uiOutput("morePrimvar_opt_taxa"),
                                                        uiOutput("covariates_taxa"), 
-                                                       actionButton("taxa_runbtn_bin", (strong("Run!")), class = "btn-info"),
+                                                       actionButton("button_bal", (strong("Run!")), class = "btn-info"),
                                                        uiOutput("dttttfragile"),
                                                        uiOutput("rtttt.anti"))),
                   
