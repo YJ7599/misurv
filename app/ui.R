@@ -404,7 +404,9 @@ library(splitTools)
                                                        uiOutput("dttttfragile"),
                                                        uiOutput("rtttt.anti"))),
                   
-                  mainPanel("mainpanel")
+                  mainPanel(width = 9, uiOutput("airpods"))
+                  
+                  #mainPanel("mainpanel")
                   #mainPanel(width = 9,
                   #          fluidRow(width = 8, 
                   #                   div(style='height:800px;overflow-y: scroll;', uiOutput("airpods")), br(),br(),
