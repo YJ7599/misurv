@@ -2755,6 +2755,18 @@ server = function(input, output, session) {
   ######################################
   observeEvent(input$button_bal,{
     
+    output$baram= renderUI({
+            tagList(
+              plotOutput("hahahaha", height = 400, width = 750))
+            
+          })
+          
+        output$hahahaha = renderPlot({ 
+            hist(1:10)   
+          })
+        
+        
+    
     validate(
       if (input$covariates_taxa == "Covariate(s)" & is.null(input$covariatesOptions_taxa)) {
         showNotification("Error: Please select covariate(s) before you click 'Run!' button.",
@@ -2798,16 +2810,6 @@ server = function(input, output, session) {
         sam_dat <- taxa.bin.cat.recode.func(chooseData$sam.dat, input$primvar_taxa, taxa.bin.cat.ref.ori.out,
                                             rename.cats_ref, rename.cats_com)
         
-        
-        output$baram= renderUI({
-            tagList(
-              plotOutput("hahahaha", height = 400, width = 750))
-            
-          })
-          
-        output$hahahaha = renderPlot({ 
-            hist(1:10)   
-          })
         
         
         if (input$covariates_taxa == "None") {
