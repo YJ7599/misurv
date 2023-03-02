@@ -2848,6 +2848,8 @@ server = function(input, output, session) {
             } 
           }
           
+          shinyjs::show("pen_h") 
+          
           output$pen_h= renderUI({
             tagList(
               tabBox(title = strong("Box Plot", style = "color:black"), width = NULL,
@@ -3040,6 +3042,7 @@ server = function(input, output, session) {
             }
           }
           
+          shinyjs::show("pen_h") 
           output$pen_h= renderUI({
             tagList(
               tabBox(title = strong("Box Plot", style = "color:black"), width = NULL,
@@ -3281,6 +3284,7 @@ server = function(input, output, session) {
           }
           
           if (duplicate.texts>0) {
+            shinyjs::show("pen_h") 
             output$pen_h = renderUI({
               tagList(
                 do.call(tabsetPanel, lapply(1:nrow, function(i) {
@@ -3291,7 +3295,8 @@ server = function(input, output, session) {
               )
             })
           } else {
-            output$taxa_display_results = renderUI({
+            shinyjs::show("pen_h") 
+            output$pen_h = renderUI({
               tagList(
                 do.call(tabsetPanel, lapply(1:nrow, function(i) {
                   tabPanel(title = paste0("Page ", i), align = "center",
