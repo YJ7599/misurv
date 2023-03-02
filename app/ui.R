@@ -417,7 +417,7 @@ library(splitTools)
                                                        uiOutput("morePrimvar_opt_taxa"),
                                                        uiOutput("covariates_taxa"), 
                                                        actionButton("taxa_runbtn_bin", (strong("Run!")), class = "btn-info"),
-                                                       uiOutput("downloadTable_taxa"),
+                                                       uiOutput("dttttfragile"),
                                                        uiOutput("referencesM2.taxa"))),
                   
                   mainPanel(width = 9,
