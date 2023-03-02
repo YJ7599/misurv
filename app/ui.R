@@ -165,14 +165,15 @@ library(splitTools)
                            menuSubItem("Data Transformation", tabName = "step3", icon = icon("calculator"))), #or, icon th-large
                   menuItem("Module 1", tabName = "SurvAnalysis", icon = icon("bar-chart-o")
                   ),
-                  menuItem("Module 3",  icon = icon("disease"),
-                           menuSubItem("Alpha Diversity", tabName = "alphaDivanalysisSurv", icon = icon("font")),
-                           menuSubItem("Beta Diversity", tabName = "betaDivanalysisSurv", icon = icon("bold")),
-                           menuSubItem("Taxonomic Abundance", tabName = "taxaAnalysisSurv", icon = icon("align-left"))),
                   menuItem("Module 2",  icon = icon("chart-pie"),
                            menuSubItem("Alpha Diversity", tabName = "alphaDivanalysis", icon = icon("font")),
                            menuSubItem("Beta Diversity", tabName = "betaDivanalysis", icon = icon("bold")),
                            menuSubItem("Taxonomic Abundance", tabName = "thelasttrail", icon = icon("align-left"))),
+                  menuItem("Module 3",  icon = icon("disease"),
+                           menuSubItem("Alpha Diversity", tabName = "alphaDivanalysisSurv", icon = icon("font")),
+                           menuSubItem("Beta Diversity", tabName = "betaDivanalysisSurv", icon = icon("bold")),
+                           menuSubItem("Taxonomic Abundance", tabName = "taxaAnalysisSurv", icon = icon("align-left"))),
+                  
                   
                   menuItem("Module 4", tabName = "RandomForest", icon = icon("tree")))),
     dashboardBody(
