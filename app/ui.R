@@ -422,7 +422,7 @@ library(splitTools)
                   
                   mainPanel(width = 9,
                             fluidRow(width = 8, 
-                                     div(style='height:800px;overflow-y: scroll;', uiOutput("obj__g")), br(),br(),
+                                     div(style='height:800px;overflow-y: scroll;', uiOutput("kkkirings")), br(),br(),
                                      uiOutput("nine_five_four"))
                   ))),
         
