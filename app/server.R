@@ -2876,7 +2876,12 @@ server = function(input, output, session) {
             )
           })
           
-          
+          shinyjs::show("box_1")
+          shinyjs::show("box_2")
+          shinyjs::show("box_3")
+          shinyjs::show("box_4")
+          shinyjs::show("box_5")
+          shinyjs::show("box_6")
           
           output$box_1 = renderPlot({ 
             taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 1, TRUE)  
@@ -2968,6 +2973,7 @@ server = function(input, output, session) {
             tab.five <- na.omit(tab.five)
           }
           
+          shinyjs::show("vis_rank") 
           
           output$vis_rank = renderUI({
             
@@ -2989,9 +2995,18 @@ server = function(input, output, session) {
             )
           })
           
+          shinyjs::show("first_taxa_dend") 
+          
           output$first_taxa_dend= renderGrViz({
             taxa.sig.dend(taxa.outputs$DAoutput, chooseData$NAadded$tax.tab, "twopi", include)$flow.text
           })
+          
+          shinyjs::show("hmm_T1") 
+          shinyjs::show("hmm_T2")
+          shinyjs::show("hmm_T3")
+          shinyjs::show("hmm_T4")
+          shinyjs::show("hmm_T5")
+          shinyjs::show("hmm_T6")
           
           output$hmm_T1 <- renderText({
             sig.tab1 <- kable(tab.one, 'html', booktabs =TRUE, escape = FALSE) %>%
@@ -3068,6 +3083,13 @@ server = function(input, output, session) {
               )
             )
           })
+          
+          shinyjs::show("rank1") 
+          shinyjs::show("rank2") 
+          shinyjs::show("rank3") 
+          shinyjs::show("rank4") 
+          shinyjs::show("rank5") 
+          shinyjs::show("rank6") 
           
           output$rank1 = renderPlot({ 
             taxa.bin.boxplot(taxa_dataBinvar, taxa_dataTaxa, taxa.outputs$DAoutput, chooseData$taxa.names.out, 1, TRUE)  
@@ -3162,6 +3184,8 @@ server = function(input, output, session) {
           }
           
           
+          shinyjs::show("vis_rank") 
+          
           output$vis_rank = renderUI({
             
             box(title = strong("Dendrogram"), width = NULL, solidHeader = TRUE, status = "primary", 
@@ -3182,6 +3206,14 @@ server = function(input, output, session) {
             )
           })
           
+          shinyjs::show("boom_taxa") 
+          shinyjs::show("hmm_T1")
+          shinyjs::show("hmm_T2")
+          shinyjs::show("hmm_T3")
+          shinyjs::show("hmm_T4")
+          shinyjs::show("hmm_T5")
+          
+                    
           output$boom_taxa= renderGrViz({
             taxa.sig.dend(taxa.outputs$DAoutput, chooseData$NAadded$tax.tab, "twopi", include)$flow.text
           })
