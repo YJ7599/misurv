@@ -3072,7 +3072,7 @@ server = function(input, output, session) {
           print("11:22") 
           
           shinyjs::show("airpods") 
-          outputOptions(output, 'airpods', suspendWhenHidden = FALSE)
+          #outputOptions(output, 'airpods', suspendWhenHidden = FALSE)
          
           #outputOptions(output, 'kkkirings', suspendWhenHidden = FALSE)
           #outputOptions(output, 'water__melon', suspendWhenHidden = FALSE)
