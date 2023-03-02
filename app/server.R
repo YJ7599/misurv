@@ -4041,7 +4041,7 @@ server = function(input, output, session) {
           #  })
           #})
           
-        #}
+        }
         taxa.sig <- taxa.sig.dend.surv(taxa.cox.out, chooseData$NAadded$tax.tab, "twopi", include)
         
         taxon.tab <- taxa.sig$taxon.tab
