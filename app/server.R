@@ -1929,7 +1929,7 @@ server = function(input, output, session) {
     # shinyjs::disable("beta_covariates_bin")
     
     # shinyjs::disable("chooseMethod_taxa")
-    shinyjs::disable("taxa_runbtn_bin")
+    shinyjs::disable("button_bal")
     # shinyjs::disable("surv3.taxa.method")
     shinyjs::disable("runbtn_CoxT")
     # shinyjs::disable("surv4.method.select")
@@ -2163,7 +2163,7 @@ server = function(input, output, session) {
     shinyjs::enable("beta_chooseMethod_bin")
     shinyjs::enable("beta_runbtn_cross_bin")
     shinyjs::enable("chooseMethod_taxa")
-    shinyjs::enable("taxa_runbtn_bin")
+    shinyjs::enable("button_bal")
     shinyjs::enable("surv3.taxa.method")
     shinyjs::enable("runbtn_CoxT")
     shinyjs::enable("surv4.method.select")
@@ -2753,7 +2753,7 @@ server = function(input, output, session) {
   ######################################
   # Taxa Cross-Sectional Data Analysis #
   ######################################
-  observeEvent(input$taxa_runbtn_bin,{
+  observeEvent(input$button_bal,{
     
     validate(
       if (input$covariates_taxa == "Covariate(s)" & is.null(input$covariatesOptions_taxa)) {
@@ -2764,7 +2764,7 @@ server = function(input, output, session) {
       }
     )
     
-    shinyjs::disable("taxa_runbtn_bin")
+    shinyjs::disable("button_bal")
     shinyjs::disable("dataType_taxa")
     shinyjs::disable("primvar_taxa")
     shinyjs::disable("taxaCat1")  
@@ -3601,7 +3601,7 @@ server = function(input, output, session) {
             )
           })
         }
-        shinyjs::enable("taxa_runbtn_bin")
+        shinyjs::enable("button_bal")
         shinyjs::enable("dataType_taxa")
         shinyjs::enable("primvar_taxa")
         shinyjs::enable("taxaCat1")  
