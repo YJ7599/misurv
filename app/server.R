@@ -3059,12 +3059,12 @@ server = function(input, output, session) {
           
           shinyjs::show("obj__g") 
           
-          output$obj__g = renderUI({
+          output$obj__g <<- renderUI({
             plotOutput("melon") 
           })
           
           shinyjs::show("melon") 
-          output$melon <- renderPlot({
+          output$melon <<- renderPlot({
             hist(1:10)
           }) 
           
