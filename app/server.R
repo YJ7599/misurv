@@ -3062,18 +3062,14 @@ server = function(input, output, session) {
           
           print("11:21") 
           
-          shinyjs::hide("ha_shi")
-          shinyjs::hide("ple_surv_dend") 
+          #shinyjs::hide("ha_shi")
+          #shinyjs::hide("ple_surv_dend") 
           
           print("11:22") 
           
           shinyjs::show("airpods") 
-          
-          print("first") 
-          print(outputOptions(output))
-          print("second") 
-          print(outputOptions(output), suspendWhenHidden = FALSE)
-          
+          outputOptions(output, 'airpods', suspendWhenHidden = FALSE)
+         
           #outputOptions(output, 'kkkirings', suspendWhenHidden = FALSE)
           #outputOptions(output, 'water__melon', suspendWhenHidden = FALSE)
           
