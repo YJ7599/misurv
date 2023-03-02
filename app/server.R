@@ -108,8 +108,8 @@ server = function(input, output, session) {
   source("MiDataProc.Surv.Model4.R")
   source("MiDataProc.Taxa.Cross.Sectional.R")
   
-  output$airpods <- renderUI({})
-  outputOptions(output, "airpods", suspendWhenHidden = FALSE)
+  output$shibal <- renderUI({})
+  outputOptions(output, 'shibal', suspendWhenHidden = FALSE)
 
   
   env <- new.env()
@@ -2856,9 +2856,9 @@ server = function(input, output, session) {
             } 
           }
           
-          shinyjs::show("airpods") 
+          shinyjs::show("shibal") 
           
-          output$airpods= renderUI({
+          output$shibal= renderUI({
             tagList(
               tabBox(title = strong("Box Plot", style = "color:black"), width = NULL,
                      tabPanel("Phylum", align = "center",
@@ -3072,26 +3072,10 @@ server = function(input, output, session) {
           
           print("11:22") 
           
-          shinyjs::show("airpods") 
-          #outputOptions(output, 'airpods', suspendWhenHidden = FALSE)
+          shinyjs::show("shibal") 
          
-          #outputOptions(output, 'kkkirings', suspendWhenHidden = FALSE)
-          #outputOptions(output, 'water__melon', suspendWhenHidden = FALSE)
           
-          #output$kkkirings <<- renderUI({
-          #  plotOutput("water__melon") 
-          #})
-          
-          #print("11:23") 
-          #shinyjs::show("water__melon") 
-          
-          #output$water__melon <<- renderPlot({
-          #  hist(1:10)
-          #}) 
-          
-          print("11:24") 
-          
-          output$airpods = renderUI({
+          output$shibal = renderUI({
             tagList(
               tabBox(title = strong("Box Plot", style = "color:black"), width = NULL,
            tabPanel("Phylum", align = "center",
@@ -3349,8 +3333,8 @@ server = function(input, output, session) {
           }
           
           if (duplicate.texts>0) {
-            shinyjs::show("airpods") 
-            output$airpods = renderUI({
+            shinyjs::show("shibal") 
+            output$shibal = renderUI({
               tagList(
                 do.call(tabsetPanel, lapply(1:nrow, function(i) {
                   tabPanel(title = paste0("Page ", i), align = "center",
@@ -3360,8 +3344,8 @@ server = function(input, output, session) {
               )
             })
           } else {
-            shinyjs::show("airpods") 
-            output$airpods = renderUI({
+            shinyjs::show("shibal") 
+            output$shibal = renderUI({
               tagList(
                 do.call(tabsetPanel, lapply(1:nrow, function(i) {
                   tabPanel(title = paste0("Page ", i), align = "center",
