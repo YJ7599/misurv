@@ -187,6 +187,9 @@ server = function(input, output, session) {
   taxa.types = reactiveValues(dataType = NULL, dataType_Surv = NULL, regression = NULL, dataType_model4 = NULL)
   taxa.outputs = reactiveValues(DAoutput = NULL, DAoutput_or = NULL, DAoutputlong = NULL)
   
+  
+  
+  
   rcol = reactiveValues(selected = "lightblue") 
   
   ## options to change theme ####
