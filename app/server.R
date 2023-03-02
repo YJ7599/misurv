@@ -2798,7 +2798,14 @@ server = function(input, output, session) {
         sam_dat <- taxa.bin.cat.recode.func(chooseData$sam.dat, input$primvar_taxa, taxa.bin.cat.ref.ori.out,
                                             rename.cats_ref, rename.cats_com)
         
-        output$baram = renderPlot({ 
+        
+        output$baram= renderUI({
+            tagList(
+              plotOutput("hahahaha", height = height = 400, width = 750))
+            )
+          })
+          '
+        output$hahahaha = renderPlot({ 
             hist(1:10)   
           })
         
