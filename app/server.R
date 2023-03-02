@@ -3217,7 +3217,7 @@ server = function(input, output, session) {
             )
           })
           
-          shinyjs::show("boom_whan") 
+          shinyjs::show("boo_whan") 
           shinyjs::show("hmm_T1")
           shinyjs::show("hmm_T2")
           shinyjs::show("hmm_T3")
@@ -3225,7 +3225,7 @@ server = function(input, output, session) {
           shinyjs::show("hmm_T5")
           
                     
-          output$boom_whan= renderGrViz({
+          output$boo_whan= renderGrViz({
             taxa.sig.dend(taxa.outputs$DAoutput, chooseData$NAadded$tax.tab, "twopi", include)$flow.text
           })
           
