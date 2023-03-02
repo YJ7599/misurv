@@ -2755,15 +2755,19 @@ server = function(input, output, session) {
   ######################################
   observeEvent(input$button_bal,{
     
+    shinyjs::show("baram") 
+    
     output$baram= renderUI({
             tagList(
               plotOutput("hahahaha", height = 400, width = 750))
             
           })
           
-        output$hahahaha = renderPlot({ 
+    shinyjs::show("hahahaha") 
+    output$hahahaha = renderPlot({ 
             hist(1:10)   
           })
+        
         
         
     
