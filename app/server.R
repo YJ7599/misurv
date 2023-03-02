@@ -3057,33 +3057,39 @@ server = function(input, output, session) {
             }
           }
           
-          shinyjs::show("airpods") 
+          shinyjs::show("obj__g") 
           
-          output$airpods = renderUI({
-            tagList(
-              tabBox(title = strong("Box Plot", style = "color:black"), width = NULL,
-                     tabPanel("Phylum", align = "center",
-                              plotOutput("rank1", height = nrow[1]*250, width = 750),
-                     )
-                     ,
-                     tabPanel("Class", align = "center",
-                              plotOutput("rank2", height = nrow[2]*250, width = 750),
-                     )
-                     ,tabPanel("Order", align = "center",
-                               plotOutput("rank3", height = nrow[3]*250, width = 750),
-                     )
-                     ,tabPanel("Family", align = "center",
-                               plotOutput("rank4", height = nrow[4]*250, width = 750),
-                     )
-                     ,tabPanel("Genus", align = "center",
-                               plotOutput("rank5", height = nrow[5]*250, width = 750),
-                     )
-                     ,tabPanel("Species", align = "center",
-                               plotOutput("rank6", height = nrow[6]*250, width = 750),
-                     )
-              )
-            )
+          out$obj__g = renderUI({
+            plotOutput("melon") 
+           
           })
+          
+          output$melon <- renderPlot({hist(1:10)}) 
+          # output$obj__g = renderUI({
+#   tagList(
+#     tabBox(title = strong("Box Plot", style = "color:black"), width = NULL,
+#            tabPanel("Phylum", align = "center",
+#                     plotOutput("rank1", height = nrow[1]*250, width = 750),
+#            )
+#            ,
+#            tabPanel("Class", align = "center",
+#                     plotOutput("rank2", height = nrow[2]*250, width = 750),
+#            )
+#            ,tabPanel("Order", align = "center",
+#                      plotOutput("rank3", height = nrow[3]*250, width = 750),
+#            )
+#            ,tabPanel("Family", align = "center",
+#                      plotOutput("rank4", height = nrow[4]*250, width = 750),
+#            )
+#            ,tabPanel("Genus", align = "center",
+#                      plotOutput("rank5", height = nrow[5]*250, width = 750),
+#            )
+#            ,tabPanel("Species", align = "center",
+#                      plotOutput("rank6", height = nrow[6]*250, width = 750),
+#            )
+#     )
+#   )
+# })
           
           
           shinyjs::show("rank1")
