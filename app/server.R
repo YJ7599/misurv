@@ -108,6 +108,10 @@ server = function(input, output, session) {
   source("MiDataProc.Surv.Model4.R")
   source("MiDataProc.Taxa.Cross.Sectional.R")
   
+  output$airpods <- renderUI({})
+  outputOptions(output, "airpods", suspendWhenHidden = FALSE)
+
+  
   env <- new.env()
   nm <- load(file = "Data/biom.Rdata", env)[1]
   biom <- env[[nm]]
@@ -2774,9 +2778,6 @@ server = function(input, output, session) {
     shinyjs::disable("include_species.dend")
     shinyjs::disable("chooseMethod_taxa")
     
-    output$airpods <- renderUI({})
-    outputOptions(output, "airpods", suspendWhenHidden = FALSE)
-
     
     withProgress(
       message = 'Calculation in progress',
