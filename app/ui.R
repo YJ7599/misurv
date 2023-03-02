@@ -475,7 +475,7 @@ library(splitTools)
                                                        uiOutput("referencesM3.taxa"))),
                   mainPanel(width = 9,
                             fluidRow(width = 12, 
-                                     div(style='height:700px;overflow-y: scroll;', uiOutput("surv_last_results")), br(),br(), #s_taxa_display_result 
+                                     div(style='height:700px;overflow-y: scroll;', uiOutput("ha_shi")), br(),br(), #s_taxa_display_result 
                                      
                                      uiOutput("ple_surv_dend"))
                             
