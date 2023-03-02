@@ -3066,6 +3066,7 @@ server = function(input, output, session) {
           
           shinyjs::show("kkkirings") 
           
+          print(outputOptions(output)) 
           outputOptions(output, 'kkkirings', suspendWhenHidden = FALSE)
           outputOptions(output, 'water__melon', suspendWhenHidden = FALSE)
           
