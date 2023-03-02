@@ -3057,14 +3057,17 @@ server = function(input, output, session) {
             }
           }
           
-          shinyjs::show("obj__g") 
+          shinyjs::hide("ha_shi")
+          shinyjs::hide("ple_surv_dend") 
           
-          output$obj__g <<- renderUI({
-            plotOutput("melon") 
+          shinyjs::show("kkkirings") 
+          
+          output$kkkirings <<- renderUI({
+            plotOutput("water__melon") 
           })
           
           shinyjs::show("melon") 
-          output$melon <<- renderPlot({
+          output$water__melon <<- renderPlot({
             hist(1:10)
           }) 
           
