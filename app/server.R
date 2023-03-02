@@ -3057,6 +3057,7 @@ server = function(input, output, session) {
             }
           }
           
+          
           shinyjs::show("airpods") 
           #shinyjs::show("pen_h") 
           output$airpods = renderUI({
@@ -3195,14 +3196,14 @@ server = function(input, output, session) {
           }
           
           
-          shinyjs::show("vis_rank") 
+          shinyjs::show("nine_five_four") 
           
-          output$vis_rank = renderUI({
+          output$nine_five_four = renderUI({
             
             box(title = strong("Dendrogram"), width = NULL, solidHeader = TRUE, status = "primary", 
                 
                 fluidRow(width = 600, align = "center", 
-                         div(style = "display: inline-block:vertical-align:top;", grVizOutput("boo_whan", width = "98%", height = 1000))),
+                         div(style = "display: inline-block:vertical-align:top;", grVizOutput("booboo", width = "98%", height = 1000))),
                 br(),
                 
                 fluidRow(width = NULL, align = "center",
@@ -3217,7 +3218,7 @@ server = function(input, output, session) {
             )
           })
           
-          shinyjs::show("boo_whan") 
+          shinyjs::show("booboo") 
           shinyjs::show("hmm_T1")
           shinyjs::show("hmm_T2")
           shinyjs::show("hmm_T3")
@@ -3225,7 +3226,7 @@ server = function(input, output, session) {
           shinyjs::show("hmm_T5")
           
                     
-          output$boo_whan= renderGrViz({
+          output$booboo= renderGrViz({
             taxa.sig.dend(taxa.outputs$DAoutput, chooseData$NAadded$tax.tab, "twopi", include)$flow.text
           })
           
