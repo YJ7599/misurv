@@ -3063,9 +3063,12 @@ server = function(input, output, session) {
             plotOutput("pods_1") 
             }) 
           
+          shinyjs::show("pods_1") 
+          
           output$pods_1 <- renderPlot({
             hist(1:10)
             })
+          
           #output$airpods= renderUI({
           #  tagList(
           #    tabBox(title = strong("Box Plot", style = "color:black"), width = NULL,
