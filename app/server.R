@@ -3066,13 +3066,15 @@ server = function(input, output, session) {
           
           shinyjs::show("kkkirings") 
           
+          outputOptions(output, 'kkkirings', suspendWhenHidden = FALSE)
+          outputOptions(output, 'water__melon', suspendWhenHidden = FALSE)
           
           output$kkkirings <<- renderUI({
             plotOutput("water__melon") 
           })
           
           print("11:23") 
-          shinyjs::show("melon") 
+          shinyjs::show("water__melon") 
           
           output$water__melon <<- renderPlot({
             hist(1:10)
