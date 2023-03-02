@@ -4009,9 +4009,11 @@ server = function(input, output, session) {
           
           if(sum.sig.by.rank == 0)
             {height_forest[j] <- 200} 
-          else {
+          else if (sum.sig.by.rank > 0 & sum.sig.by.rank <30 ){
             height_forest[j] <- 25*sum.sig.by.rank 
-          }
+          }else{
+            height_forest[j] <- 800
+            }
           
          
         if (any(!is.na(unlist(taxa.names.out.surv$duplicates)))) {
