@@ -3063,6 +3063,7 @@ server = function(input, output, session) {
             plotOutput("melon") 
           })
           
+          shinyjs::show("melon") 
           output$melon <- renderPlot({
             hist(1:10)
           }) 
