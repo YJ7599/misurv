@@ -3059,12 +3059,14 @@ server = function(input, output, session) {
           
           shinyjs::show("obj__g") 
           
-          out$obj__g = renderUI({
+          output$obj__g = renderUI({
             plotOutput("melon") 
-           
           })
           
-          output$melon <- renderPlot({hist(1:10)}) 
+          output$melon <- renderPlot({
+            hist(1:10)
+          }) 
+          
           # output$obj__g = renderUI({
 #   tagList(
 #     tabBox(title = strong("Box Plot", style = "color:black"), width = NULL,
@@ -3090,7 +3092,6 @@ server = function(input, output, session) {
 #     )
 #   )
 # })
-          
           
           shinyjs::show("rank1")
           shinyjs::show("rank2")
