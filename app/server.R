@@ -3063,23 +3063,23 @@ server = function(input, output, session) {
             tagList(
               tabBox(title = strong("Box Plot", style = "color:black"), width = NULL,
                      tabPanel("Phylum", align = "center",
-                              plotOutput("rank_1", height = nrow[1]*250, width = 750),
+                              plotOutput("rank1", height = nrow[1]*250, width = 750),
                      )
                      ,
                      tabPanel("Class", align = "center",
-                              plotOutput("rank_2", height = nrow[2]*250, width = 750),
+                              plotOutput("rank2", height = nrow[2]*250, width = 750),
                      )
                      ,tabPanel("Order", align = "center",
-                               plotOutput("rank_3", height = nrow[3]*250, width = 750),
+                               plotOutput("rank3", height = nrow[3]*250, width = 750),
                      )
                      ,tabPanel("Family", align = "center",
-                               plotOutput("rank_4", height = nrow[4]*250, width = 750),
+                               plotOutput("rank4", height = nrow[4]*250, width = 750),
                      )
                      ,tabPanel("Genus", align = "center",
-                               plotOutput("rank_5", height = nrow[5]*250, width = 750),
+                               plotOutput("rank5", height = nrow[5]*250, width = 750),
                      )
                      ,tabPanel("Species", align = "center",
-                               plotOutput("rank_6", height = nrow[6]*250, width = 750),
+                               plotOutput("rank6", height = nrow[6]*250, width = 750),
                      )
               )
             )
