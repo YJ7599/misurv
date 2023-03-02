@@ -2755,22 +2755,6 @@ server = function(input, output, session) {
   ######################################
   observeEvent(input$button_bal,{
     
-    shinyjs::show("baram") 
-    
-    output$baram= renderUI({
-            tagList(
-              plotOutput("hahahaha", height = 400, width = 750))
-            
-          })
-          
-    shinyjs::show("hahahaha") 
-    output$hahahaha = renderPlot({ 
-            hist(1:10)   
-          })
-        
-        
-        
-    
     validate(
       if (input$covariates_taxa == "Covariate(s)" & is.null(input$covariatesOptions_taxa)) {
         showNotification("Error: Please select covariate(s) before you click 'Run!' button.",
