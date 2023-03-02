@@ -2802,7 +2802,7 @@ server = function(input, output, session) {
         output$baram= renderUI({
             tagList(
               plotOutput("hahahaha", height = 400, width = 750))
-            )
+            
           })
           
         output$hahahaha = renderPlot({ 
