@@ -394,9 +394,6 @@ library(splitTools)
         
         ##### Model 2: Taxa Analysis ####
         tabItem(tabName = "thelasttrail", br(),
-                
-                mainPanel(width = 9, uiOutput("baram")),
-                
                 sidebarLayout( 
                   position = "left",
                   div(style="width: 98%;",sidebarPanel(width = 3,
@@ -405,8 +402,10 @@ library(splitTools)
                                                        uiOutput("covariates_taxa"), 
                                                        actionButton("button_bal", (strong("Run!")), class = "btn-info"),
                                                        uiOutput("dttttfragile"),
-                                                       uiOutput("rtttt.anti")))
+                                                       uiOutput("rtttt.anti"))),
                   
+                  
+                  mainPanel(width = 9, uiOutput("baram"))
                   #mainPanel(width = 9, uiOutput("baram")) 
                   
                   #mainPanel(width = 9, uiOutput("airpods"))
