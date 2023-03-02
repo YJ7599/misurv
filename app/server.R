@@ -108,10 +108,6 @@ server = function(input, output, session) {
   source("MiDataProc.Surv.Model4.R")
   source("MiDataProc.Taxa.Cross.Sectional.R")
   
-  output$airpods <- renderUI({})
-  outputOptions(output, 'airpods', suspendWhenHidden = FALSE)
-
-  
   env <- new.env()
   nm <- load(file = "Data/biom.Rdata", env)[1]
   biom <- env[[nm]]
@@ -2802,6 +2798,12 @@ server = function(input, output, session) {
         sam_dat <- taxa.bin.cat.recode.func(chooseData$sam.dat, input$primvar_taxa, taxa.bin.cat.ref.ori.out,
                                             rename.cats_ref, rename.cats_com)
         
+        
+        output$baram = renderPlot({ 
+            hist(1:10)   
+          })
+        
+        
         if (input$covariates_taxa == "None") {
           if (input$chooseMethod_taxa == "Negative binomial regression") {
             taxa.bin.out <- taxa.bin.cat.ref.united.func(input$primvar_taxa, rename.cats_ref,
@@ -2837,6 +2839,7 @@ server = function(input, output, session) {
         
         taxa_dataBinvar <- taxa.results$bin.var
         taxa_dataTaxa <- taxa.results$taxa
+        
         
         if (input$chooseMethod_taxa == "Welch t-test") {
           incProgress(5/10, message = "Welch t-test")
